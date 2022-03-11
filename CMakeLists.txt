@@ -5,9 +5,13 @@ file(GLOB_RECURSE SOURCE_FILES
     Jolt/*.h
 )
 
+set(INCLUDE_DIRS
+    Jolt
+)
+
 add_library(jolt ${SOURCE_FILES})
 
-target_include_directories(jolt PRIVATE Jolt)
+target_include_directories(jolt PRIVATE ${INCLUDE_DIRS})
 
 set_target_properties(jolt PROPERTIES FOLDER dependencies)
 
