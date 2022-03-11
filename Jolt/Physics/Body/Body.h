@@ -63,7 +63,11 @@ public:
 	/// Check if a body could be made kinematic or dynamic (if it was created dynamic or with mAllowDynamicOrKinematic set to true)
 	inline bool				CanBeKinematicOrDynamic() const									{ return mMotionProperties != nullptr; }
 
-	/// Check if this body is a sensor. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
+	/// Change the body to a sensor or to a regular static body. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
+	/// Note that Sensors need to be of motion type Static (they can be moved around using BodyInterface::SetPosition/SetPositionAndRotation).
+	inline void				SetIsSensor(bool inIsSensor)									{ JPH_ASSERT(!inIsSensor || mMotionProperties == nullptr, "A sensor needs to be Static"); if (inIsSensor) mFlags.fetch_or(uint8(JPH::Body::EFlags::IsSensor), JPH::memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(JPH::Body::EFlags::IsSensor)), JPH::memory_order_relaxed); }
+
+	/// Check if this body is a sensor.
 	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsSensor)) != 0; }
 
 	/// Motion type of this body
@@ -117,8 +121,11 @@ public:
 	/// Velocity of point inPoint (in world space, e.g. on the surface of the body) of the body (unit: m/s)
 	inline Vec3				GetPointVelocity(Vec3Arg inPoint) const							{ JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess, BodyAccess::EAccess::Read)); return GetPointVelocityCOM(inPoint - mPosition); }
 
-	/// Add force (unit: N) for the next time step, will be reset after the next call to PhysicsSimulation::Update
+	/// Add force (unit: N) at center of mass for the next time step, will be reset after the next call to PhysicsSimulation::Update
 	inline void				AddForce(Vec3Arg inForce)										{ JPH_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mForce) + inForce).StoreFloat3(&mMotionProperties->mForce); }
+
+	/// Add force (unit: N) at inPosition for the next time step, will be reset after the next call to PhysicsSimulation::Update
+	inline void				AddForce(Vec3Arg inForce, Vec3Arg inPosition);
 
 	/// Add torque (unit: N m) for the next time step, will be reset after the next call to PhysicsSimulation::Update
 	inline void				AddTorque(Vec3Arg inTorque)										{ JPH_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mTorque) + inTorque).StoreFloat3(&mMotionProperties->mTorque); }
