@@ -25,6 +25,7 @@ There are a number of user configurable defines that turn on/off certain feature
 - JPH_DEBUG_RENDERER - Adds support to draw lines and triangles, used to be able to debug draw the state of the world.
 - JPH_DISABLE_TEMP_ALLOCATOR - Disables the temporary memory allocator, used mainly to allow ASAN to do its job.
 - JPH_FLOATING_POINT_EXCEPTIONS_ENABLED - Turns on division by zero and invalid floating point exception support in order to detect bugs (Windows only).
+- JPH_USE_SSE4_1 - Enable SSE4.1 CPU instructions (x64 only)
 - JPH_USE_SSE4_2 - Enable SSE4.2 CPU instructions (x64 only)
 - JPH_USE_F16C - Enable half float CPU instructions (x64 only)
 - JPH_USE_LZCNT - Enable the lzcnt CPU instruction (x64 only)
@@ -71,6 +72,24 @@ To override the default trace and assert mechanism install your own custom handl
 - Select 'Run' / 'Run...' and 'UnitTests'
 - If the screen turns green after a while the unit tests succeeded, when red they failed (see the android log for details)
 
+### MacOS
+
+- Install XCode
+- Download CMake 3.23+ (https://cmake.org/download/)
+- Run: ./cmake_xcode_macos.sh
+- This will open XCode with a newly generated project
+- Build and run the project
+
+Note that you can also follow the steps in the 'Linux' section if you wish to build without XCode.
+
+### iOS
+
+- Install XCode
+- Download CMake 3.23+ (https://cmake.org/download/)
+- Run: ./cmake_xcode.ios.sh
+- This will open XCode with a newly generated project
+- Build and run the project (note that this will only work in the simulator as the code signing information is not set up)
+
 ## Unit Test Coverage Report on Windows
 
 To test unit test coverage run the following:
@@ -79,7 +98,7 @@ To test unit test coverage run the following:
 - Run: unit_tests_coverage.bat
 - This will build and run the unit tests and open a browser with the results
 
-## Doxygen
+## Doxygen on Windows
 
 Documentation can be generated through doxygen:
 
