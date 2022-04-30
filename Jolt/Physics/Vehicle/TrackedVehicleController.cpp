@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Vehicle/TrackedVehicleController.h>
-#include <Physics/PhysicsSystem.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Vehicle/TrackedVehicleController.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(TrackedVehicleControllerSettings)
 {
@@ -293,7 +293,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 			float total_radius = 0.0f;
 			for (uint wheel_index : t.mWheels)
 			{
-				WheelTV *w = static_cast<WheelTV *>(wheels[wheel_index]);
+				const WheelTV *w = static_cast<WheelTV *>(wheels[wheel_index]);
 
 				if (w->HasContact())
 					total_radius += w->GetSettings()->mRadius;
@@ -484,4 +484,4 @@ void TrackedVehicleController::RestoreState(StateRecorder &inStream)
 		t.RestoreState(inStream);
 }
 
-} // JPH
+JPH_NAMESPACE_END

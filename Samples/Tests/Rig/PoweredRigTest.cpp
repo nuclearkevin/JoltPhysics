@@ -4,7 +4,7 @@
 #include <TestFramework.h>
 
 #include <Tests/Rig/PoweredRigTest.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/StateRecorder.h>
 #include <Application/DebugUI.h>
 #include <Utils/RagdollLoader.h>
 #include <Utils/Log.h>
@@ -25,7 +25,7 @@ const char *PoweredRigTest::sAnimations[] =
 	"Dead_Pose4"
 };
 
-const char *PoweredRigTest::sAnimationName = "Dead_Pose1";
+const char *PoweredRigTest::sAnimationName = "Sprint";
 
 PoweredRigTest::~PoweredRigTest()
 {

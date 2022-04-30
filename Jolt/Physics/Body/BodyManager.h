@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/Body/Body.h>
-#include <Core/Mutex.h>
-#include <Core/MutexArray.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Core/Mutex.h>
+#include <Jolt/Core/MutexArray.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 // Classes
 class BodyCreationSettings;
@@ -176,7 +176,6 @@ public:
 		bool						mDrawVelocity = false;							///< Draw the velocity vector for each body
 		bool						mDrawMassAndInertia = false;					///< Draw the mass and inertia (as the box equivalent) for each body
 		bool						mDrawSleepStats = false;						///< Draw stats regarding the sleeping algorithm of each body
-		bool						mDrawNames = false;								///< (Debug only) Draw the object names for each body
 	};
 
 	/// Draw the state of the bodies (debugging purposes)
@@ -283,4 +282,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

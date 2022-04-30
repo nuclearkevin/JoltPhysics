@@ -3,16 +3,17 @@
 
 #pragma once
 
-#include <Physics/Body/MassProperties.h>
-#include <Physics/Collision/BackFaceMode.h>
-#include <Physics/Collision/CollisionCollector.h>
-#include <Geometry/AABox.h>
-#include <Core/Reference.h>
-#include <Core/Color.h>
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Physics/Body/MassProperties.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Collision/CollisionCollector.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 struct RayCast;
 class RayCastSettings;
@@ -152,7 +153,7 @@ private:
 };
 
 /// Base class for all shapes (collision volume of a body). Defines a virtual interface for collision detection.
-class Shape : public RefTarget<Shape>
+class Shape : public RefTarget<Shape>, public NonCopyable
 {
 public:
 	using ShapeResult = ShapeSettings::ShapeResult;
@@ -199,7 +200,8 @@ public:
 	/// Get the material assigned to a particular sub shape ID
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const = 0;
 
-	/// Get the surface normal of a particular sub shape ID and point on surface (all vectors are relative to center of mass for this shape)
+	/// Get the surface normal of a particular sub shape ID and point on surface (all vectors are relative to center of mass for this shape).
+	/// Note: When you have a CollideShapeResult or ShapeCastResult you should use -mPenetrationAxis.Normalized() as contact normal as GetSurfaceNormal will only return face normals (and not vertex or edge normals).
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const = 0;
 
 	/// Get the user data of a particular sub shape ID
@@ -228,10 +230,10 @@ public:
 	virtual void					Draw(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const = 0;
 
 	/// Draw the results of the GetSupportFunction with the convex radius added back on to show any errors introduced by this process (only relevant for convex shapes)
-	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const { }
+	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const { /* Only implemented for convex shapes */ }
 
 	/// Draw the results of the GetSupportingFace function to show any errors introduced by this process (only relevant for convex shapes)
-	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const { }
+	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const { /* Only implemented for convex shapes */ }
 #endif // JPH_DEBUG_RENDERER
 
 	/// Cast a ray against this shape, returns true if it finds a hit closer than ioHit.mFraction and updates that fraction. Otherwise ioHit is left untouched and the function returns false.
@@ -300,13 +302,13 @@ public:
 	static ShapeResult				sRestoreFromBinaryState(StreamIn &inStream);
 
 	/// Outputs the material references that this shape has to outMaterials.
-	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const			{ }
+	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const			{ /* By default do nothing */ }
 
 	/// Restore the material references after calling sRestoreFromBinaryState. Note that the exact same materials need to be provided in the same order as returned by SaveMaterialState.
 	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint inNumMaterials) { JPH_ASSERT(inNumMaterials == 0); }
 
 	/// Outputs the shape references that this shape has to outSubShapes.
-	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const					{ }
+	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const					{ /* By default do nothing */ }
 
 	/// Restore the shape references after calling sRestoreFromBinaryState. Note that the exact same shapes need to be provided in the same order as returned by SaveSubShapeState.
 	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint inNumShapes) { JPH_ASSERT(inNumShapes == 0); }
@@ -364,4 +366,4 @@ private:
 	EShapeSubType					mShapeSubType;
 };
 
-} // JPH
+JPH_NAMESPACE_END

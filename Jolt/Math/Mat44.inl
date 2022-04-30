@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Math/Vec3.h>
-#include <Math/Vec4.h>
-#include <Math/Quat.h>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Math/Vec4.h>
+#include <Jolt/Math/Quat.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 Mat44::Mat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, Vec4Arg inC4) : 
 	mCol { inC1, inC2, inC3, inC4 } 
@@ -330,7 +330,6 @@ Mat44 Mat44::Multiply3x3(Mat44Arg inM) const
 		Type t = vmulq_f32(mCol[0].mValue, vdupq_laneq_f32(c, 0));
 		t = vmlaq_f32(t, mCol[1].mValue, vdupq_laneq_f32(c, 1));
 		t = vmlaq_f32(t, mCol[2].mValue, vdupq_laneq_f32(c, 2));
-		t = vmlaq_f32(t, mCol[3].mValue, vdupq_laneq_f32(c, 3));
 		result.mCol[i].mValue = t;
 	}
 #else
@@ -940,7 +939,7 @@ Mat44 Mat44::Inversed3x3() const
 #endif
 }
 
-const Quat Mat44::GetQuaternion() const
+Quat Mat44::GetQuaternion() const
 {
 	JPH_ASSERT(mCol[3] == Vec4(0, 0, 0, 1));
 
@@ -1052,6 +1051,16 @@ void Mat44::SetRotation(Mat44Arg inRotation)
 	mCol[2] = inRotation.mCol[2];
 }
 
+Mat44 Mat44::PreTranslated(Vec3Arg inTranslation) const
+{
+	return Mat44(mCol[0], mCol[1], mCol[2], Vec4(GetTranslation() + Multiply3x3(inTranslation), 1));
+}
+
+Mat44 Mat44::PostTranslated(Vec3Arg inTranslation) const
+{
+	return Mat44(mCol[0], mCol[1], mCol[2], Vec4(GetTranslation() + inTranslation, 1));
+}
+
 Mat44 Mat44::PreScaled(Vec3Arg inScale) const
 {
 	return Mat44(inScale.GetX() * mCol[0], inScale.GetY() * mCol[1], inScale.GetZ() * mCol[2], mCol[3]);
@@ -1094,4 +1103,4 @@ Mat44 Mat44::Decompose(Vec3 &outScale) const
 	return Mat44(Vec4(x / outScale.GetX(), 0), Vec4(y / outScale.GetY(), 0), Vec4(z / outScale.GetZ(), 0), GetColumn4(3));
 }
 
-} // JPH
+JPH_NAMESPACE_END

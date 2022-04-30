@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include <Physics/Constraints/TwoBodyConstraint.h>
-#include <Physics/Constraints/MotorSettings.h>
-#include <Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/RotationEulerConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Physics/Constraints/MotorSettings.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/RotationEulerConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Slider constraint settings, used to create a slider constraint
 class SliderConstraintSettings final : public TwoBodyConstraintSettings
@@ -115,7 +115,7 @@ private:
 	void						CalculateR1R2U(Mat44Arg inRotation1, Mat44Arg inRotation2);
 	void						CalculateSlidingAxisAndPosition(Mat44Arg inRotation1);
 	void						CalculatePositionConstraintProperties(Mat44Arg inRotation1, Mat44Arg inRotation2);
-	void						CalculatePositionLimitsConstraintProperties(float inDeltaTime, Mat44Arg inRotation1);
+	void						CalculatePositionLimitsConstraintProperties(float inDeltaTime);
 	void						CalculateMotorConstraintProperties(float inDeltaTime);
 
 	// CONFIGURATION PROPERTIES FOLLOW
@@ -174,4 +174,4 @@ private:
 	AxisConstraintPart			mMotorConstraintPart;
 };
 
-} // JPH
+JPH_NAMESPACE_END

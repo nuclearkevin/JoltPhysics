@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/NonCopyable.h>
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class IslandBuilder;
 class BodyManager;
@@ -48,7 +48,7 @@ enum class EConstraintSpace
 };
 
 /// Class used to store the configuration of a constraint. Allows run-time creation of constraints.
-class ConstraintSettings : public SerializableObject, public RefTarget<ConstraintSettings>, public NonCopyable
+class ConstraintSettings : public SerializableObject, public RefTarget<ConstraintSettings>
 {
 public:
 	JPH_DECLARE_SERIALIZABLE_VIRTUAL(ConstraintSettings)
@@ -70,7 +70,7 @@ protected:
 };
 
 /// Base class for all physics constraints. A constraint removes one or more degrees of freedom for a rigid body.
-class Constraint : public RefTarget<Constraint>
+class Constraint : public RefTarget<Constraint>, public NonCopyable
 {
 public:
 	/// Constructor
@@ -87,8 +87,9 @@ public:
 	/// Get the type of a constraint
 	virtual EConstraintType		GetType() const = 0;
 
-	/// Enable / disable this constraint. This can e.g. be used to implement a breakable constraint by detecting that the constraint impulse went over a certain limit and then disabling the constraint. 
-	/// Note that although a disabled constraint will not affect the simulation in any way anymore, it does incur some processing overhead. 
+	/// Enable / disable this constraint. This can e.g. be used to implement a breakable constraint by detecting that the constraint impulse
+	/// (see e.g. PointConstraint::GetTotalLambdaPosition) went over a certain limit and then disabling the constraint.
+	/// Note that although a disabled constraint will not affect the simulation in any way anymore, it does incur some processing overhead.
 	/// Alternatively you can remove a constraint from the constraint manager (which may be more costly if you want to disable the constraint for a short while).
 	void						SetEnabled(bool inEnabled)					{ mEnabled = inEnabled; }
 
@@ -143,4 +144,4 @@ private:
 	bool						mEnabled = true;
 };
 
-} // JPH
+JPH_NAMESPACE_END

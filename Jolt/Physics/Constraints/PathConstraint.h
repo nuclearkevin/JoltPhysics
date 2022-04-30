@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Physics/Constraints/TwoBodyConstraint.h>
-#include <Physics/Constraints/PathConstraintPath.h>
-#include <Physics/Constraints/MotorSettings.h>
-#include <Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/HingeRotationConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/RotationQuatConstraintPart.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Physics/Constraints/PathConstraintPath.h>
+#include <Jolt/Physics/Constraints/MotorSettings.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/HingeRotationConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/RotationQuatConstraintPart.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// How to constrain the rotation of the body to a PathConstraint
 enum class EPathRotationConstraintType
@@ -111,6 +111,13 @@ public:
 	void							SetTargetPathFraction(float inFraction)					{ JPH_ASSERT(mPath->IsLooping() || (inFraction >= 0.0f && inFraction <= mPath->GetPathMaxFraction())); mTargetPathFraction = inFraction; }
 	float							GetTargetPathFraction() const							{ return mTargetPathFraction; }
 
+	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	inline Vector<2>				GetTotalLambdaPosition() const							{ return mPositionConstraintPart.GetTotalLambda(); }
+	inline float					GetTotalLambdaPositionLimits() const					{ return mPositionLimitsConstraintPart.GetTotalLambda(); }
+	inline float					GetTotalLambdaMotor() const								{ return mPositionMotorConstraintPart.GetTotalLambda(); }
+	inline Vector<2>				GetTotalLambdaRotationHinge() const						{ return mHingeConstraintPart.GetTotalLambda(); }
+	inline Vec3						GetTotalLambdaRotation() const							{ return mRotationConstraintPart.GetTotalLambda(); }
+
 private:
 	// Internal helper function to calculate the values below
 	void							CalculateConstraintProperties(float inDeltaTime);
@@ -163,4 +170,4 @@ private:
 	RotationQuatConstraintPart		mRotationConstraintPart;								///< Constraint part that removes all rotational freedom
 };
 
-} // JPH
+JPH_NAMESPACE_END

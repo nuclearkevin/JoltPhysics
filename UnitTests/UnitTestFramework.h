@@ -1,14 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
-#include <Math/DVec3.h>
-#include <Math/Float2.h>
-#include "doctest.h"
+#include <Jolt/Jolt.h>
+#include <Jolt/Math/DVec3.h>
+#include <Jolt/Math/Float2.h>
 
-#if defined(JPH_COMPILER_CLANG)
-	#pragma clang diagnostic ignored "-Wheader-hygiene"
-#endif
+// Disable common warnings
+JPH_SUPPRESS_WARNINGS
+JPH_CLANG_SUPPRESS_WARNING("-Wheader-hygiene")
+
+#include "doctest.h"
 
 using namespace JPH;
 

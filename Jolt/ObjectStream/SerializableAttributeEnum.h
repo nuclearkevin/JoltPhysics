@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/SerializableAttribute.h>
+#include <Jolt/ObjectStream/SerializableAttribute.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Contains an serialize attribute of type enum
 template <class Class, class T>
@@ -51,7 +51,8 @@ public:
 	}
 
 	virtual void				VisitCompounds(const void *inObject, const CompoundVisitor &inVisitor) const override
-	{		
+	{
+		// An enum is not a compound, do nothing
 	}
 
 private:
@@ -72,4 +73,4 @@ inline void AddSerializableAttributeEnum(RTTI &inRTTI, T Class::*inMember, const
 #define JPH_ADD_ENUM_ATTRIBUTE(class_name, member_name)																\
 								AddSerializableAttributeEnum(inRTTI, &class_name::member_name, #member_name);
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleSplitter/TriangleSplitterBinning.h>
+#include <Jolt/TriangleSplitter/TriangleSplitterBinning.h>
 
- namespace JPH {
+ JPH_NAMESPACE_BEGIN
 
 TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint inMinNumBins, uint inMaxNumBins, uint inNumTrianglesPerBin) :
 	TriangleSplitter(inVertices, inTriangles),
@@ -90,7 +90,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		for (uint b = 1; b < num_bins; ++b) // Start at 1 since selecting bin 0 would result in everything ending up on the right side
 		{
 			// Calculate surface area heuristic and see if it is better than the current best
-			Bin &bin = bins[b];
+			const Bin &bin = bins[b];
 			float cp = bin.mBoundsAccumulatedLeft.GetSurfaceArea() * bin.mNumTrianglesAccumulatedLeft + bin.mBoundsAccumulatedRight.GetSurfaceArea() * bin.mNumTrianglesAccumulatedRight;
 			if (cp < best_cp)
 			{
@@ -108,4 +108,4 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	return SplitInternal(inTriangles, best_dim, best_split, outLeft, outRight);
 }
 
-} // JPH
+JPH_NAMESPACE_END

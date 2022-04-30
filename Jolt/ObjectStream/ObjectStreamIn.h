@@ -3,13 +3,16 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStream.h>
-#include <Core/Reference.h>
-#include <Core/RTTI.h>
+#include <Jolt/ObjectStream/ObjectStream.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/RTTI.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
 #include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
@@ -116,30 +119,28 @@ private:
 	/// Class descriptions
 	struct AttributeDescription
 	{
-								AttributeDescription()									: mArrayDepth(0), mDataType(EDataType::Invalid), mIndex(-1) { }
-
-		int						mArrayDepth;
-		EDataType				mDataType;
+		int						mArrayDepth = 0;
+		EDataType				mDataType = EDataType::Invalid;
 		string					mClassName;
-		int						mIndex;
+		int						mIndex = -1;
 	};
 
 	struct ClassDescription
 	{
-								ClassDescription()										: mRTTI(nullptr) { }
+								ClassDescription() = default;
 		explicit 				ClassDescription(const RTTI *inRTTI)					: mRTTI(inRTTI) { }
 
-		const RTTI *			mRTTI;
+		const RTTI *			mRTTI = nullptr;
 		vector<AttributeDescription>	mAttributes;
 	};
 	
 	struct ObjectInfo
 	{
-								ObjectInfo()											: mInstance(nullptr), mRTTI(nullptr) { }
+								ObjectInfo() = default;
 								ObjectInfo(void *inInstance, const RTTI *inRTTI)		: mInstance(inInstance), mRTTI(inRTTI) { }
 
-		void *					mInstance;
-		const RTTI *			mRTTI;
+		void *					mInstance = nullptr;
+		const RTTI *			mRTTI = nullptr;
 	};
 
 	struct Link
@@ -163,7 +164,7 @@ private:
 	bool	OSReadData(ObjectStreamIn &ioStream, name &outPrimitive);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 /// Define serialization templates for dynamic arrays
 template <class T>
@@ -243,4 +244,4 @@ bool OSReadData(ObjectStreamIn &ioStream, RefConst<T> &inRef)
 	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
 }
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStreamIn.h>
+#include <Jolt/ObjectStream/ObjectStreamIn.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream binary input stream.
 class ObjectStreamBinaryIn : public ObjectStreamIn
@@ -38,7 +38,7 @@ private:
 	using StringTable = unordered_map<uint32, string>;
 
 	StringTable					mStringTable;
-	uint32						mNextStringID;
+	uint32						mNextStringID = 0x80000000;
 };
 
-} // JPH
+JPH_NAMESPACE_END

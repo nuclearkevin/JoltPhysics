@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Vehicle/WheeledVehicleController.h>
-#include <Physics/PhysicsSystem.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Vehicle/WheeledVehicleController.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(WheeledVehicleControllerSettings)
 {
@@ -91,7 +91,7 @@ void WheelWV::Update(float inDeltaTime, const VehicleConstraint &inConstraint)
 
 	if (mContactBody != nullptr)
 	{
-		Body *body = inConstraint.GetVehicleBody();
+		const Body *body = inConstraint.GetVehicleBody();
 
 		// Calculate relative velocity between wheel contact point and floor
 		Vec3 relative_velocity = body->GetPointVelocity(mContactPosition) - mContactPointVelocity;
@@ -470,4 +470,4 @@ void WheeledVehicleController::RestoreState(StateRecorder &inStream)
 	mTransmission.RestoreState(inStream);
 }
 
-} // JPH
+JPH_NAMESPACE_END

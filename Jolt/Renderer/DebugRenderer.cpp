@@ -1,15 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
 #ifdef JPH_DEBUG_RENDERER
 
-#include <Renderer/DebugRenderer.h>
-#include <Core/Profiler.h>
-#include <Geometry/OrientedBox.h>
+#include <Jolt/Renderer/DebugRenderer.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Geometry/OrientedBox.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 DebugRenderer *DebugRenderer::sInstance = nullptr;
 
@@ -209,6 +209,33 @@ void DebugRenderer::DrawCoordinateSystem(Mat44Arg inTransform, float inSize)
 	DrawArrow(inTransform.GetTranslation(), inTransform * Vec3(inSize, 0, 0), Color::sRed, 0.1f * inSize);
 	DrawArrow(inTransform.GetTranslation(), inTransform * Vec3(0, inSize, 0), Color::sGreen, 0.1f * inSize);
 	DrawArrow(inTransform.GetTranslation(), inTransform * Vec3(0, 0, inSize), Color::sBlue, 0.1f * inSize);
+}
+
+void DebugRenderer::DrawPlane(Vec3Arg inPoint, Vec3Arg inNormal, ColorArg inColor, float inSize)
+{
+	// Create orthogonal basis
+	Vec3 perp1 = inNormal.Cross(Vec3::sAxisY()).NormalizedOr(Vec3::sAxisX());
+	Vec3 perp2 = perp1.Cross(inNormal).Normalized();
+	perp1 = inNormal.Cross(perp2);
+
+	// Calculate corners
+	Vec3 corner1 = inPoint + inSize * (perp1 + perp2);
+	Vec3 corner2 = inPoint + inSize * (perp1 - perp2);
+	Vec3 corner3 = inPoint + inSize * (-perp1 - perp2);
+	Vec3 corner4 = inPoint + inSize * (-perp1 + perp2);
+
+	// Draw cross
+	DrawLine(corner1, corner3, inColor);
+	DrawLine(corner2, corner4, inColor);
+
+	// Draw square
+	DrawLine(corner1, corner2, inColor);
+	DrawLine(corner2, corner3, inColor);
+	DrawLine(corner3, corner4, inColor);
+	DrawLine(corner4, corner1, inColor);
+
+	// Draw normal
+	DrawArrow(inPoint, inPoint + inSize * inNormal, inColor, 0.1f * inSize);
 }
 
 void DebugRenderer::DrawWireTriangle(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, ColorArg inColor)
@@ -959,6 +986,6 @@ void DebugRenderer::DrawPie(Vec3Arg inCenter, float inRadius, Vec3Arg inNormal, 
 	DrawGeometry(matrix, inColor, geometry, ECullMode::Off, inCastShadow, inDrawMode);
 }
 
-} // JPH
+JPH_NAMESPACE_END
 
 #endif // JPH_DEBUG_RENDERER

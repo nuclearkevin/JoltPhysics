@@ -8,7 +8,6 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/AABBTree/AABBTreeToBuffer.h
 	${JOLT_PHYSICS_ROOT}/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h
 	${JOLT_PHYSICS_ROOT}/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h
-	${JOLT_PHYSICS_ROOT}/Core/AlignedAllocator.h
 	${JOLT_PHYSICS_ROOT}/Core/Atomics.h
 	${JOLT_PHYSICS_ROOT}/Core/ByteBuffer.h
 	${JOLT_PHYSICS_ROOT}/Core/Color.cpp
@@ -50,6 +49,8 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Core/StreamWrapper.h
 	${JOLT_PHYSICS_ROOT}/Core/StringTools.cpp
 	${JOLT_PHYSICS_ROOT}/Core/StringTools.h
+	${JOLT_PHYSICS_ROOT}/Core/STLAlignedAllocator.h
+	${JOLT_PHYSICS_ROOT}/Core/STLTempAllocator.h
 	${JOLT_PHYSICS_ROOT}/Core/TempAllocator.h
 	${JOLT_PHYSICS_ROOT}/Core/TickCounter.cpp
 	${JOLT_PHYSICS_ROOT}/Core/TickCounter.h
@@ -164,6 +165,10 @@ set(JOLT_PHYSICS_SRC_FILES
 	${JOLT_PHYSICS_ROOT}/Physics/Body/MotionType.h
 	${JOLT_PHYSICS_ROOT}/Physics/Character/Character.cpp
 	${JOLT_PHYSICS_ROOT}/Physics/Character/Character.h
+	${JOLT_PHYSICS_ROOT}/Physics/Character/CharacterBase.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/Character/CharacterBase.h
+	${JOLT_PHYSICS_ROOT}/Physics/Character/CharacterVirtual.cpp
+	${JOLT_PHYSICS_ROOT}/Physics/Character/CharacterVirtual.h
 	${JOLT_PHYSICS_ROOT}/Physics/Collision/AABoxCast.h
 	${JOLT_PHYSICS_ROOT}/Physics/Collision/ActiveEdgeMode.h
 	${JOLT_PHYSICS_ROOT}/Physics/Collision/ActiveEdges.h
@@ -382,9 +387,9 @@ endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# Enable Precompiled Headers for Jolt
-	set_source_files_properties(${JOLT_PHYSICS_SRC_FILES} PROPERTIES COMPILE_FLAGS "/YuJolt.h")
+	set_source_files_properties(${JOLT_PHYSICS_SRC_FILES} PROPERTIES COMPILE_FLAGS "/YuJolt/Jolt.h")
 	set(JOLT_PHYSICS_SRC_FILES ${JOLT_PHYSICS_SRC_FILES} ${JOLT_PHYSICS_ROOT}/pch.cpp)	
-	set_source_files_properties(${JOLT_PHYSICS_ROOT}/pch.cpp PROPERTIES COMPILE_FLAGS "/YcJolt.h")
+	set_source_files_properties(${JOLT_PHYSICS_ROOT}/pch.cpp PROPERTIES COMPILE_FLAGS "/YcJolt/Jolt.h")
 endif()
 
 # Group source files
@@ -392,4 +397,10 @@ source_group(TREE ${JOLT_PHYSICS_ROOT} FILES ${JOLT_PHYSICS_SRC_FILES})
 
 # Create Jolt lib
 add_library(Jolt STATIC ${JOLT_PHYSICS_SRC_FILES})
-target_include_directories(Jolt PUBLIC ${JOLT_PHYSICS_ROOT})
+target_include_directories(Jolt PUBLIC ${PHYSICS_REPO_ROOT})
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Debug>:_DEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Release>:NDEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:Distribution>:NDEBUG>")
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:ReleaseASAN>:NDEBUG;JPH_PROFILE_ENABLED;JPH_DISABLE_TEMP_ALLOCATOR;JPH_DEBUG_RENDERER>")
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:ReleaseUBSAN>:NDEBUG;JPH_PROFILE_ENABLED;JPH_DEBUG_RENDERER>")
+target_compile_definitions(Jolt PUBLIC "$<$<CONFIG:ReleaseCoverage>:NDEBUG>")

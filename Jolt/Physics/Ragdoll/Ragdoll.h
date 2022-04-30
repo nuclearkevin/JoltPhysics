@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/Result.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Constraints/TwoBodyConstraint.h>
-#include <Skeleton/Skeleton.h>
-#include <Skeleton/SkeletonPose.h>
-#include <Physics/EActivation.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Skeleton/Skeleton.h>
+#include <Jolt/Skeleton/SkeletonPose.h>
+#include <Jolt/Physics/EActivation.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class Ragdoll;
 class PhysicsSystem;
@@ -106,7 +106,7 @@ private:
 };
 
 /// Runtime ragdoll information
-class Ragdoll : public RefTarget<Ragdoll>
+class Ragdoll : public RefTarget<Ragdoll>, public NonCopyable
 {
 public:
 	/// Constructor
@@ -176,7 +176,7 @@ public:
 	const TwoBodyConstraint *			GetConstraint(int inConstraintIndex) const				{ return mConstraints[inConstraintIndex]; }
 
 	/// Get world space bounding box for all bodies of the ragdoll
-	const AABox 						GetWorldSpaceBounds(bool inLockBodies = true) const;
+	AABox 								GetWorldSpaceBounds(bool inLockBodies = true) const;
 
 	/// Get the settings object that created this ragdoll
 	const RagdollSettings *				GetRagdollSettings() const								{ return mRagdollSettings; }
@@ -198,4 +198,4 @@ private:
 	PhysicsSystem *						mSystem;
 };
 
-} // JPH
+JPH_NAMESPACE_END

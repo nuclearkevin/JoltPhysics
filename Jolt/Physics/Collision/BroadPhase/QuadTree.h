@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Core/FixedSizeFreeList.h>
-#include <Core/Atomics.h>
-#include <Core/NonCopyable.h>
-#include <Physics/Body/BodyManager.h>
-#include <Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Jolt/Core/FixedSizeFreeList.h>
+#include <Jolt/Core/Atomics.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Physics/Body/BodyManager.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
 
 #ifdef JPH_TRACK_BROADPHASE_STATS
 	#include <map>
@@ -15,7 +15,7 @@
 
 //#define JPH_DUMP_BROADPHASE_TREE
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Internal tree structure in broadphase, is essentially a quad AABB tree.
 /// Tree is lockless (except for UpdatePrepare/Finalize() function), modifying objects in the tree will widen the aabbs of parent nodes to make the node fit.
@@ -75,7 +75,7 @@ private:
 		inline void				operator = (const NodeID &inRHS)			{ mID = inRHS.mID; }
 
 		/// Getting the value
-		inline					operator const NodeID () const				{ return NodeID(mID); }
+		inline					operator NodeID () const					{ return NodeID(mID); }
 
 		/// Check if the ID is valid
 		inline bool				IsValid() const								{ return mID != cInvalidNodeIndex; }
@@ -96,7 +96,7 @@ private:
 	{
 	public:
 		/// Construct node
-								Node();
+		explicit				Node(bool inIsChanged);
 
 		/// Get bounding box encapsulating all children
 		void					GetNodeBounds(AABox &outBounds) const;
@@ -130,7 +130,7 @@ private:
 
 		/// If this part of the tree has changed, if not, we will treat this sub tree as a single body during the UpdatePrepare/Finalize().
 		/// If any changes are made to an object inside this sub tree then the direct path from the body to the top of the tree will become changed.
-		atomic<uint32>			mIsChanged = false;
+		atomic<uint32>			mIsChanged;
 
 		// Padding to align to 124 bytes
 		uint32					mPadding = 0;
@@ -220,11 +220,10 @@ public:
 	void						AddBodiesAbort(TrackingVector &ioTracking, const AddState &inState);
 
 	/// Remove inNumber bodies in ioBodyIDs from the quadtree.
-	/// ioBodyIDs may be shuffled around by this function.
-	void						RemoveBodies(const BodyVector &inBodies, TrackingVector &ioTracking, BodyID *ioBodyIDs, int inNumber);
+	void						RemoveBodies(const BodyVector &inBodies, TrackingVector &ioTracking, const BodyID *ioBodyIDs, int inNumber);
 
-	/// Call whenever the aabb of a body changes (can change order of ioBodyIDs array).
-	void						NotifyBodiesAABBChanged(const BodyVector &inBodies, const TrackingVector &inTracking, BodyID *ioBodyIDs, int inNumber);
+	/// Call whenever the aabb of a body changes.
+	void						NotifyBodiesAABBChanged(const BodyVector &inBodies, const TrackingVector &inTracking, const BodyID *ioBodyIDs, int inNumber);
 
 	/// Cast a ray and get the intersecting bodies in ioCollector.
 	void						CastRay(const RayCast &inRay, RayCastBodyCollector &ioCollector, const ObjectLayerFilter &inObjectLayerFilter, const TrackingVector &inTracking) const;
@@ -271,7 +270,7 @@ private:
 	/// Caches location of body inBodyID in the tracker, body can be found in mNodes[inNodeIdx].mChildNodeID[inChildIdx]
 	void						GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32 &outNodeIdx, uint32 &outChildIdx) const;
 	void						SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32 inNodeIdx, uint32 inChildIdx) const;
-	void						InvalidateBodyLocation(TrackingVector &ioTracking, BodyID inBodyID);
+	static void					sInvalidateBodyLocation(TrackingVector &ioTracking, BodyID inBodyID);
 
 	/// Get the current root of the tree
 	JPH_INLINE const RootNode &	GetCurrentRoot() const				{ return mRootNode[mRootNodeIndex]; }
@@ -287,7 +286,7 @@ private:
 	inline void					WidenAndMarkNodeAndParentsChanged(uint32 inNodeIndex, const AABox &inNewBounds);
 
 	/// Allocate a new node
-	inline uint32				AllocateNode();
+	inline uint32				AllocateNode(bool inIsChanged);
 
 	/// Try to insert a new leaf to the tree at inNodeIndex
 	inline bool					TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
@@ -295,8 +294,8 @@ private:
 	/// Try to replace the existing root with a new root that contains both the existing root and the new leaf
 	inline bool					TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
 
-	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1)
-	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, AABox &outBounds);
+	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1). All tree levels up to inMaxDepthMarkChanged will be marked as 'changed'.
+	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint inMaxDepthMarkChanged, AABox &outBounds);
 
 	/// Sorts ioNodeIDs spatially into 2 groups. Second groups starts at ioNodeIDs + outMidPoint.
 	/// After the function returns ioNodeIDs and ioNodeCenters will be shuffled
@@ -345,6 +344,9 @@ private:
 	mutable LayerToStats		mCastAABoxStats;
 #endif // JPH_TRACK_BROADPHASE_STATS
 
+	/// Debug function to get the depth of the tree from node inNodeID
+	uint						GetMaxTreeDepth(const NodeID &inNodeID) const;
+
 	/// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitBody for each body encountered
 	template <class Visitor>
 	JPH_INLINE void				WalkTree(const ObjectLayerFilter &inObjectLayerFilter, const TrackingVector &inTracking, Visitor &ioVisitor JPH_IF_TRACK_BROADPHASE_STATS(, LayerToStats &ioStats)) const;
@@ -372,4 +374,4 @@ private:
 	atomic<bool>				mIsDirty = false;
 };
 
-} // JPH
+JPH_NAMESPACE_END

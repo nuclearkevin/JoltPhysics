@@ -3,18 +3,21 @@
 
 #pragma once
 
-#include <Core/StaticArray.h>
-#include <Core/LockFreeHashMap.h>
-#include <Physics/Body/BodyPair.h>
-#include <Physics/Collision/Shape/SubShapeIDPair.h>
-#include <Physics/Collision/ManifoldBetweenTwoFaces.h>
-#include <Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
-#include <Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
-#include <Core/HashCombine.h>
-#include <Core/NonCopyable.h>
-#include <atomic>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Core/LockFreeHashMap.h>
+#include <Jolt/Physics/Body/BodyPair.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeIDPair.h>
+#include <Jolt/Physics/Collision/ManifoldBetweenTwoFaces.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/AxisConstraintPart.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/DualAxisConstraintPart.h>
+#include <Jolt/Core/HashCombine.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 class PhysicsUpdateContext;
 
@@ -90,6 +93,7 @@ public:
 
 	/// Add a contact constraint for this frame.
 	///
+	/// @param ioContactAllocator The allocator that reserves memory for the contacts
 	/// @param inBodyPair The handle for the contact cache for this body pair
 	/// @param inBody1 The first body that is colliding
 	/// @param inBody2 The second body that is colliding
@@ -144,7 +148,7 @@ public:
 	void						SortContacts(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd) const;
 
 	/// AddContactConstraint will also setup the velocity constraints for the first sub step. For subsequent sub steps this function must be called prior to warm starting the constraint.
-	void						SetupVelocityConstraints(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd, float inDeltaTime);
+	void						SetupVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime);
 
 	/// Apply last frame's impulses as an initial guess for this frame's impulses
 	void						WarmStartVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio);
@@ -182,7 +186,7 @@ public:
 	bool						SolveVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd);
 
 	/// Save back the lambdas to the contact cache for the next warm start
-	void						StoreAppliedImpulses(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd);
+	void						StoreAppliedImpulses(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd) const;
 
 	/// Solve position constraints.
 	/// This is using the approach described in 'Modeling and Solving Constraints' by Erin Catto presented at GDC 2007.
@@ -209,6 +213,7 @@ public:
 	void						FinishConstraintBuffer();
 
 	/// Called by continuous collision detection to notify the contact listener that a contact was added
+	/// @param ioContactAllocator The allocator that reserves memory for the contacts
 	/// @param inBody1 The first body that is colliding
 	/// @param inBody2 The second body that is colliding
 	/// @param inManifold The manifold that describes the collision
@@ -474,4 +479,4 @@ private:
 	PhysicsUpdateContext *		mUpdateContext;
 };
 
-} // JPH
+JPH_NAMESPACE_END

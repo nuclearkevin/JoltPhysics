@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Core/StaticArray.h>
-#include <Physics/Collision/BackFaceMode.h>
-#include <Physics/Collision/ActiveEdgeMode.h>
-#include <Physics/Collision/CollectFacesMode.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Physics/Body/BodyID.h>
-#include <Physics/PhysicsSettings.h>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Collision/ActiveEdgeMode.h>
+#include <Jolt/Physics/Collision/CollectFacesMode.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/PhysicsSettings.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Class that contains all information of two colliding shapes
 class CollideShapeResult
@@ -37,9 +37,9 @@ public:
 
 	using Face = StaticArray<Vec3, 32>;
 
-	Vec3					mContactPointOn1;			///< Contact point on shape 1 (in world space)
-	Vec3					mContactPointOn2;			///< Contact point on shape 2 (in world space)
-	Vec3					mPenetrationAxis;			///< Direction to move shape 2 out of collision along the shortest path (magnitude is meaningless, in world space)
+	Vec3					mContactPointOn1;			///< Contact point on the surface of shape 1 (in world space)
+	Vec3					mContactPointOn2;			///< Contact point on the surface of shape 2 (in world space). If the penetration depth is 0, this will be the same as mContactPointOn1.
+	Vec3					mPenetrationAxis;			///< Direction to move shape 2 out of collision along the shortest path (magnitude is meaningless, in world space). You can use -mPenetrationAxis.Normalized() as contact normal.
 	float					mPenetrationDepth;			///< Penetration depth (move shape 2 by this distance to resolve the collision)
 	SubShapeID				mSubShapeID1;				///< Sub shape ID that identifies the face on shape 1
 	SubShapeID				mSubShapeID2;				///< Sub shape ID that identifies the face on shape 2
@@ -79,4 +79,4 @@ public:
 	EBackFaceMode			mBackFaceMode				= EBackFaceMode::IgnoreBackFaces;
 };
 
-} // JPH
+JPH_NAMESPACE_END

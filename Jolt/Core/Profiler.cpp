@@ -1,16 +1,19 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/Profiler.h>
-#include <Core/Color.h>
-#include <Core/StringTools.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/StringTools.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
+JPH_SUPPRESS_WARNINGS_STD_END
 
 #ifdef JPH_PROFILE_ENABLED
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Profiler
@@ -93,7 +96,7 @@ void Profiler::sAggregate(int inDepth, uint32 inColor, ProfileSample *&ioSample,
 	if (aggregator_idx == ioKeyToAggregator.end())
 	{
 		// Not found, add to map and insert in array
-		ioKeyToAggregator.insert(KeyToAggregator::value_type(ioSample->mName, ioAggregators.size()));
+		ioKeyToAggregator.try_emplace(ioSample->mName, ioAggregators.size());
 		ioAggregators.emplace_back(ioSample->mName);
 		aggregator = &ioAggregators.back();
 	}
@@ -107,7 +110,7 @@ void Profiler::sAggregate(int inDepth, uint32 inColor, ProfileSample *&ioSample,
 	aggregator->AccumulateMeasurement(cycles_this_with_children, cycles_in_children);
 
 	// Update ioSample to the last child of ioSample
-	JPH_ASSERT(sample[-1].mStartCycle < ioSample->mEndCycle);
+	JPH_ASSERT(sample[-1].mStartCycle <= ioSample->mEndCycle);
 	JPH_ASSERT(sample >= inEnd || sample->mStartCycle >= ioSample->mEndCycle);
 	ioSample = sample - 1;
 }
@@ -392,6 +395,6 @@ void Profiler::DumpChart(string inTag, const Threads &inThreads, const KeyToAggr
 </tbody></table></body></html>)";
 }
 
-} // JPH
+JPH_NAMESPACE_END
 
 #endif // JPH_PROFILE_ENABLED

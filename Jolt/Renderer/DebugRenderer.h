@@ -7,15 +7,18 @@
 	#error This file should only be included when JPH_DEBUG_RENDERER is defined
 #endif // !JPH_DEBUG_RENDERER
 
-#include <Core/Color.h>
-#include <Core/Reference.h>
-#include <Core/HashCombine.h>
-#include <Math/Float2.h>
-#include <Geometry/IndexedTriangle.h>
-#include <Geometry/AABox.h>
-#include <unordered_map>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/HashCombine.h>
+#include <Jolt/Math/Float2.h>
+#include <Jolt/Geometry/IndexedTriangle.h>
+#include <Jolt/Geometry/AABox.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 class OrientedBox;
 
@@ -44,6 +47,9 @@ public:
 
 	/// Draw coordinate system (3 arrows, x = red, y = green, z = blue)
 	void								DrawCoordinateSystem(Mat44Arg inTransform, float inSize = 1.0f);
+
+	/// Draw a plane through inPoint with normal inNormal
+	void								DrawPlane(Vec3Arg inPoint, Vec3Arg inNormal, ColorArg inColor, float inSize);
 
 	/// Draw wireframe triangle
 	void								DrawWireTriangle(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, ColorArg inColor);
@@ -256,4 +262,4 @@ private:
 	PieBatces							mPieLimits;
 };
 
-} // JPH
+JPH_NAMESPACE_END

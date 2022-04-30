@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <TriangleGrouper/TriangleGrouperClosestCentroid.h>
-#include <Geometry/MortonCode.h>
+#include <Jolt/TriangleGrouper/TriangleGrouperClosestCentroid.h>
+#include <Jolt/Geometry/MortonCode.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const IndexedTriangleList &inTriangles, int inGroupSize, vector<uint> &outGroupedTriangleIndices)
 {
@@ -57,7 +57,7 @@ void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const I
 
 		// Sort remaining triangles in batch on distance to first triangle
 		sort(batch_begin_plus_1, batch_end, 
-			[&first_centroid, &centroids](uint inLHS, uint inRHS) -> bool 
+			[&first_centroid, &centroids](uint inLHS, uint inRHS)
 			{ 
 				return (centroids[inLHS] - first_centroid).LengthSq() < (centroids[inRHS] - first_centroid).LengthSq(); 
 			});
@@ -76,7 +76,7 @@ void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const I
 
 				// Find first element that is bigger than this one and insert the current item before it
 				vector<uint>::iterator upper = upper_bound(batch_begin_plus_1, batch_end, dist, 
-					[&first_centroid, &centroids](float inLHS, uint inRHS) -> bool 
+					[&first_centroid, &centroids](float inLHS, uint inRHS)
 					{
 						return inLHS < (centroids[inRHS] - first_centroid).LengthSq(); 
 					});
@@ -90,4 +90,4 @@ void TriangleGrouperClosestCentroid::Group(const VertexList &inVertices, const I
 	}
 }
 
-} // JPH
+JPH_NAMESPACE_END

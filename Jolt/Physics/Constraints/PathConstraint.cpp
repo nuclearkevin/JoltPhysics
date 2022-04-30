@@ -1,19 +1,19 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Constraints/PathConstraint.h>
-#include <Physics/Body/Body.h>
-#include <Core/StringTools.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Constraints/PathConstraint.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Core/StringTools.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(PathConstraintSettings)
 {
@@ -62,13 +62,11 @@ TwoBodyConstraint *PathConstraintSettings::Create(Body &inBody1, Body &inBody2) 
 }
 
 PathConstraint::PathConstraint(Body &inBody1, Body &inBody2, const PathConstraintSettings &inSettings) :
-	TwoBodyConstraint(inBody1, inBody2, inSettings)
+	TwoBodyConstraint(inBody1, inBody2, inSettings),
+	mRotationConstraintType(inSettings.mRotationConstraintType),
+	mMaxFrictionForce(inSettings.mMaxFrictionForce),
+	mPositionMotorSettings(inSettings.mPositionMotorSettings)
 {
-	// Copy properties
-	mMaxFrictionForce = inSettings.mMaxFrictionForce;
-	mPositionMotorSettings = inSettings.mPositionMotorSettings;
-	mRotationConstraintType = inSettings.mRotationConstraintType;
-
 	// Calculate transform that takes us from the path start to center of mass space of body 1
 	mPathToBody1 = Mat44::sRotationTranslation(inSettings.mPathRotation, inSettings.mPathPosition - inBody1.GetShape()->GetCenterOfMass());
 
@@ -428,4 +426,4 @@ void PathConstraint::RestoreState(StateRecorder &inStream)
 	inStream.Read(mPathFraction);
 }
 
-} // JPH
+JPH_NAMESPACE_END

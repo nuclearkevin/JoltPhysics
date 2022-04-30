@@ -4,11 +4,11 @@
 #include <TestFramework.h>
 
 #include <Tests/Vehicle/VehicleTest.h>
-#include <Physics/Constraints/DistanceConstraint.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/GroupFilterTable.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/PhysicsScene.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/PhysicsScene.h>
 #include <Layers.h>
 #include <Application/DebugUI.h>
 #include <Utils/Log.h>
@@ -85,9 +85,6 @@ void VehicleTest::CreateBridge()
 
 		Body &part = i == 0? *mBodyInterface->CreateBody(BodyCreationSettings(large_part_shape, pos - first_part_rot * Vec3(0, large_part_half_size.GetY() - part_half_size.GetY(), large_part_half_size.GetZ() - part_half_size.GetZ()), first_part_rot, EMotionType::Static, Layers::NON_MOVING))
 					: *mBodyInterface->CreateBody(BodyCreationSettings(part_shape, pos, Quat::sIdentity(), i == 19? EMotionType::Static : EMotionType::Dynamic, i == 19? Layers::NON_MOVING : Layers::MOVING));
-	#ifdef _DEBUG
-		part.SetDebugName("Bridge Part " + ConvertToString(i));
-	#endif
 		part.SetCollisionGroup(CollisionGroup(group_filter, 1, CollisionGroup::SubGroupID(i)));
 		part.SetFriction(1.0f);
 		mBodyInterface->AddBody(part.GetID(), EActivation::Activate);

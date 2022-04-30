@@ -3,11 +3,11 @@
 
 #include "UnitTestFramework.h"
 #include "PhysicsTestContext.h"
-#include <Physics/Constraints/ContactConstraintManager.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Core/JobSystemThreadPool.h>
-#include <Core/TempAllocator.h>
+#include <Jolt/Physics/Constraints/ContactConstraintManager.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/TempAllocator.h>
 
 PhysicsTestContext::PhysicsTestContext(float inDeltaTime, int inCollisionSteps, int inIntegrationSubSteps, int inWorkerThreads) :
 #ifdef JPH_DISABLE_TEMP_ALLOCATOR
@@ -46,9 +46,6 @@ Body &PhysicsTestContext::CreateFloor()
 	settings.mObjectLayer = Layers::NON_MOVING;
 
 	Body &floor = *mSystem->GetBodyInterface().CreateBody(settings);
-#ifdef _DEBUG
-	floor.SetDebugName("Floor");
-#endif
 	mSystem->GetBodyInterface().AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
 }

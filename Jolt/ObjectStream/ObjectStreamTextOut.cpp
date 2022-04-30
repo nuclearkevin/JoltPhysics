@@ -1,16 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/ObjectStreamTextOut.h>
-#include <Core/StringTools.h>
+#include <Jolt/ObjectStream/ObjectStreamTextOut.h>
+#include <Jolt/Core/StringTools.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 ObjectStreamTextOut::ObjectStreamTextOut(ostream &inStream) :
-	ObjectStreamOut(inStream),
-	mIndentation(0)
+	ObjectStreamOut(inStream)
 {
 	WriteWord(StringFormat("TOS%2d.%02d", ObjectStream::sVersion, ObjectStream::sRevision));
 }
@@ -183,4 +182,4 @@ void ObjectStreamTextOut::WriteWord(const string &inWord)
 	mStream << inWord;
 }
 
-} // JPH
+JPH_NAMESPACE_END

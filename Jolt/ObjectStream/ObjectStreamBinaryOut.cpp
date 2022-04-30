@@ -1,16 +1,15 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/ObjectStreamBinaryOut.h>
-#include <Core/StringTools.h>
+#include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
+#include <Jolt/Core/StringTools.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 ObjectStreamBinaryOut::ObjectStreamBinaryOut(ostream &inStream) :
-	ObjectStreamOut(inStream),
-	mNextStringID(0x80000000)
+	ObjectStreamOut(inStream)
 {
 	string header;
 	header = StringFormat("BOS%2d.%02d", ObjectStream::sVersion, ObjectStream::sRevision);
@@ -90,7 +89,8 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const string &inPrimitive)
 	}
 
 	// Insert string in table
-	mStringTable.insert(StringTable::value_type(inPrimitive, mNextStringID++));
+	mStringTable.try_emplace(inPrimitive, mNextStringID);
+	mNextStringID++;
 
 	// Write string
 	uint32 len = min((uint32)inPrimitive.size(), (uint32)0x7fffffff);
@@ -123,4 +123,4 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const Mat44 &inPrimitive)
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
 
-} // JPH
+JPH_NAMESPACE_END

@@ -2,16 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 #include "UnitTestFramework.h"
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/Shape/TriangleShape.h>
-#include <Physics/Collision/Shape/MeshShape.h>
-#include <Physics/Collision/Shape/ScaledShape.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/ShapeFilter.h>
-#include <Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/TriangleShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/ShapeFilter.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
 #include "PhysicsTestContext.h"
 #include "Layers.h"
 
@@ -25,7 +25,7 @@ TEST_SUITE("CastShapeTests")
 		cast_settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
 		cast_settings.mBackFaceModeConvex = EBackFaceMode::CollideWithBackFaces;
 		AllHitCollisionCollector<CastShapeCollector> collector;
-		CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+		CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 		CHECK(collector.mHits.size() == 1);
 		const ShapeCastResult &result = collector.mHits.back();
 		CHECK_APPROX_EQUAL(result.mFraction, 1.0f - 0.2f / inDirection.Length(), 1.0e-4f);
@@ -49,7 +49,7 @@ TEST_SUITE("CastShapeTests")
 			cast_settings.mBackFaceModeConvex = EBackFaceMode::IgnoreBackFaces;
 			cast_settings.mReturnDeepestPoint = false;
 			AllHitCollisionCollector<CastShapeCollector> collector;
-			CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+			CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 			CHECK(collector.mHits.size() == 1);
 			const ShapeCastResult &result = collector.mHits.back();
 			CHECK_APPROX_EQUAL(result.mFraction, (15.0f - 0.2f) / 30.0f, 1.0e-4f);
@@ -68,13 +68,13 @@ TEST_SUITE("CastShapeTests")
 			cast_settings.mBackFaceModeConvex = EBackFaceMode::IgnoreBackFaces;
 			cast_settings.mReturnDeepestPoint = false;
 			AllHitCollisionCollector<CastShapeCollector> collector;
-			CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+			CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 			CHECK(collector.mHits.empty());
 
 			// Hit back face -> collision
 			cast_settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
 			cast_settings.mBackFaceModeConvex = EBackFaceMode::CollideWithBackFaces;
-			CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+			CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 			CHECK(collector.mHits.size() == 1);
 			const ShapeCastResult &result = collector.mHits.back();
 			CHECK_APPROX_EQUAL(result.mFraction, (15.0f - 0.2f) / 30.0f, 1.0e-4f);
@@ -93,13 +93,13 @@ TEST_SUITE("CastShapeTests")
 			cast_settings.mBackFaceModeConvex = EBackFaceMode::IgnoreBackFaces;
 			cast_settings.mReturnDeepestPoint = true;
 			AllHitCollisionCollector<CastShapeCollector> collector;
-			CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+			CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 			CHECK(collector.mHits.empty());
 
 			// Hit back face while starting in collision -> collision
 			cast_settings.mBackFaceModeTriangles = EBackFaceMode::CollideWithBackFaces;
 			cast_settings.mBackFaceModeConvex = EBackFaceMode::CollideWithBackFaces;
-			CollisionDispatch::sCastShapeVsShape(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
+			CollisionDispatch::sCastShapeVsShapeLocalSpace(shape_cast, cast_settings, inTriangle, Vec3::sReplicate(1.0f), ShapeFilter(), Mat44::sIdentity(), SubShapeIDCreator(), SubShapeIDCreator(), collector);
 			CHECK(collector.mHits.size() == 1);
 			const ShapeCastResult &result = collector.mHits.back();
 			CHECK_APPROX_EQUAL(result.mFraction, 0.0f);

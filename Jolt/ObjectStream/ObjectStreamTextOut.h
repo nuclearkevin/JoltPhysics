@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStreamOut.h>
+#include <Jolt/ObjectStream/ObjectStreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream text output stream.
 class ObjectStreamTextOut : public ObjectStreamOut
@@ -43,7 +43,7 @@ private:
 	void						WriteChar(char inChar);
 	void						WriteWord(const string &inWord);
 
-	int							mIndentation;
+	int							mIndentation = 0;
 };
 
-} // JPH
+JPH_NAMESPACE_END

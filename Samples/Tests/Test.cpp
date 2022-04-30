@@ -5,10 +5,10 @@
 
 #include <Tests/Test.h>
 #include <Math/Perlin.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/MeshShape.h>
-#include <Physics/Collision/Shape/HeightFieldShape.h>
-#include <Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Layers.h>
 
 JPH_IMPLEMENT_RTTI_ABSTRACT(Test)
@@ -20,9 +20,6 @@ Body &Test::CreateFloor()
 	const float scale = GetWorldScale();
 
 	Body &floor = *mBodyInterface->CreateBody(BodyCreationSettings(new BoxShape(scale * Vec3(100.0f, 1.0f, 100.0f), 0.0f), scale * Vec3(0.0f, -1.0f, 0.0f), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
-#ifdef _DEBUG
-	floor.SetDebugName("Floor");
-#endif
 	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
 }
@@ -100,9 +97,6 @@ Body &Test::CreateLargeTriangleFloor()
 	mesh_settings.SetEmbedded();
 	BodyCreationSettings floor_settings(&mesh_settings, Vec3(-256.0f, 0.0f, 256.0f), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING);
 	Body &floor = *mBodyInterface->CreateBody(floor_settings);
-#ifdef _DEBUG
-	floor.SetDebugName("Floor");
-#endif
 	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
 }
@@ -149,9 +143,6 @@ Body &Test::CreateMeshTerrain()
 
 	// Floor
 	Body &floor = *mBodyInterface->CreateBody(BodyCreationSettings(new MeshShapeSettings(triangles), Vec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
-#ifdef _DEBUG
-	floor.SetDebugName("Terrain");
-#endif
 	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
 }
@@ -175,9 +166,6 @@ Body &Test::CreateHeightFieldTerrain()
 
 	// Floor
 	Body &floor = *mBodyInterface->CreateBody(BodyCreationSettings(height_field, Vec3::sZero(), Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
-#ifdef _DEBUG
-	floor.SetDebugName("Terrain");
-#endif
 	mBodyInterface->AddBody(floor.GetID(), EActivation::DontActivate);
 	return floor;
 }

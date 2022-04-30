@@ -1,18 +1,18 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Constraints/SwingTwistConstraint.h>
-#include <Physics/Body/Body.h>
-#include <ObjectStream/TypeDeclarations.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
+#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif // JPH_DEBUG_RENDERER
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_VIRTUAL(SwingTwistConstraintSettings)
 {
@@ -147,8 +147,8 @@ void SwingTwistConstraint::SetSwingMotorState(EMotorState inState)
 		mSwingMotorState = inState; 
 
 		// Ensure that warm starting next frame doesn't apply any impulses (motor parts are repurposed for different modes)
-		for (int i = 1; i < 3; ++i)
-			mMotorConstraintPart[i].Deactivate();
+		for (AngleConstraintPart &c : mMotorConstraintPart)
+			c.Deactivate();
 	}
 }
 
@@ -247,8 +247,8 @@ void SwingTwistConstraint::SetupVelocityConstraint(float inDeltaTime)
 			else
 			{
 				// Disable friction
-				for (int i = 1; i < 3; ++i)
-					mMotorConstraintPart[i].Deactivate();
+				for (AngleConstraintPart &c : mMotorConstraintPart)
+					c.Deactivate();
 			}
 			break;
 
@@ -295,16 +295,16 @@ void SwingTwistConstraint::SetupVelocityConstraint(float inDeltaTime)
 	else
 	{
 		// Disable rotation motor
-		for (int i = 0; i < 3; ++i)
-			mMotorConstraintPart[i].Deactivate();
+		for (AngleConstraintPart &c : mMotorConstraintPart)
+			c.Deactivate();
 	}
 }
 
 void SwingTwistConstraint::WarmStartVelocityConstraint(float inWarmStartImpulseRatio)
 {
 	// Warm starting: Apply previous frame impulse
-	for (int i = 0; i < 3; ++i)
-		mMotorConstraintPart[i].WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
+	for (AngleConstraintPart &c : mMotorConstraintPart)
+		c.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 	mSwingTwistConstraintPart.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 	mPointConstraintPart.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 }
@@ -435,8 +435,8 @@ void SwingTwistConstraint::SaveState(StateRecorder &inStream) const
 
 	mPointConstraintPart.SaveState(inStream);
 	mSwingTwistConstraintPart.SaveState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorConstraintPart[i].SaveState(inStream);
+	for (const AngleConstraintPart &c : mMotorConstraintPart)
+		c.SaveState(inStream);
 
 	inStream.Write(mSwingMotorState);
 	inStream.Write(mTwistMotorState);
@@ -450,8 +450,8 @@ void SwingTwistConstraint::RestoreState(StateRecorder &inStream)
 
 	mPointConstraintPart.RestoreState(inStream);
 	mSwingTwistConstraintPart.RestoreState(inStream);
-	for (int i = 0; i < 3; ++i)
-		mMotorConstraintPart[i].RestoreState(inStream);
+	for (AngleConstraintPart &c : mMotorConstraintPart)
+		c.RestoreState(inStream);
 
 	inStream.Read(mSwingMotorState);
 	inStream.Read(mTwistMotorState);
@@ -459,4 +459,4 @@ void SwingTwistConstraint::RestoreState(StateRecorder &inStream)
 	inStream.Read(mTargetOrientation);
 }
 
-} // JPH
+JPH_NAMESPACE_END

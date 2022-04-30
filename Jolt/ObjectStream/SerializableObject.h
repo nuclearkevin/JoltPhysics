@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/SerializableAttribute.h>
+#include <Jolt/ObjectStream/SerializableAttribute.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -15,12 +15,12 @@ namespace JPH {
 #define JPH_DECLARE_SERIALIZATION_FUNCTIONS(prefix, class_name)														\
 	prefix bool			OSReadData(ObjectStreamIn &ioStream, class_name &inInstance);								\
 	prefix bool			OSReadData(ObjectStreamIn &ioStream, class_name *&inPointer);								\
-	prefix bool			OSIsType(class_name *inNull, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName); \
-	prefix bool			OSIsType(class_name **inNull, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName); \
+	prefix bool			OSIsType(class_name *, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName); \
+	prefix bool			OSIsType(class_name **, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName); \
 	prefix void			OSWriteData(ObjectStreamOut &ioStream, const class_name &inInstance);						\
 	prefix void			OSWriteData(ObjectStreamOut &ioStream, class_name *const &inPointer);						\
-	prefix void			OSWriteDataType(ObjectStreamOut &ioStream, class_name *inNull);								\
-	prefix void			OSWriteDataType(ObjectStreamOut &ioStream, class_name **inNull);							\
+	prefix void			OSWriteDataType(ObjectStreamOut &ioStream, class_name *);									\
+	prefix void			OSWriteDataType(ObjectStreamOut &ioStream, class_name **);									\
 	prefix void			OSVisitCompounds(const class_name &inObject, const CompoundVisitor &inVisitor);				\
 	prefix void			OSVisitCompounds(const class_name *inObject, const CompoundVisitor &inVisitor);
 
@@ -34,11 +34,11 @@ namespace JPH {
 	{																												\
 		return ioStream.ReadPointerData(JPH_RTTI(class_name), (void **)&inPointer);									\
 	}																												\
-	bool				OSIsType(class_name *inNull, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName) \
+	bool				OSIsType(class_name *, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName) \
 	{																												\
 		return inArrayDepth == 0 && inDataType == ObjectStream::EDataType::Instance && strcmp(inClassName, #class_name) == 0; \
 	}																												\
-	bool				OSIsType(class_name **inNull, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName) \
+	bool				OSIsType(class_name **, int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName) \
 	{																												\
 		return inArrayDepth == 0 && inDataType == ObjectStream::EDataType::Pointer && strcmp(inClassName, #class_name) == 0; \
 	}																												\
@@ -53,12 +53,12 @@ namespace JPH {
 		else 																										\
 			ioStream.WritePointerData(nullptr, nullptr);															\
 	}																												\
-	void				OSWriteDataType(ObjectStreamOut &ioStream, class_name *inNull)								\
+	void				OSWriteDataType(ObjectStreamOut &ioStream, class_name *)									\
 	{																												\
 		ioStream.WriteDataType(ObjectStream::EDataType::Instance);													\
 		ioStream.WriteName(#class_name);																			\
 	}																												\
-	void				OSWriteDataType(ObjectStreamOut &ioStream, class_name **inNull)								\
+	void				OSWriteDataType(ObjectStreamOut &ioStream, class_name **)									\
 	{																												\
 		ioStream.WriteDataType(ObjectStream::EDataType::Pointer);													\
 		ioStream.WriteName(#class_name);																			\
@@ -164,7 +164,7 @@ void OSVisitCompounds(const void *inObject, const RTTI *inRTTI, const CompoundVi
 	inline void OSVisitCompounds(const name &inObject, const CompoundVisitor &inVisitor) { }
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 /// Define visitor templates
 template <class T>
@@ -215,7 +215,7 @@ public:
 
 	/// Callback given when object has been loaded from an object stream
 	/// This is called when all links have been resolved. Objects that this object point to have already received their OnLoaded callback.
-	virtual void				OnLoaded()																			{ }
+	virtual void				OnLoaded()																			{ /* Do nothing */ }
 };
 
-} // JPH
+JPH_NAMESPACE_END

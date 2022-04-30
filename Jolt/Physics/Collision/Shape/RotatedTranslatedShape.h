@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/DecoratedShape.h>
-#include <Physics/Collision/Shape/ScaleHelpers.h>
+#include <Jolt/Physics/Collision/Shape/DecoratedShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class CollideShapeSettings;
 
@@ -42,10 +42,10 @@ public:
 									RotatedTranslatedShape(const RotatedTranslatedShapeSettings &inSettings, ShapeResult &outResult);
 
 	/// Access the rotation that is applied to the inner shape
-	const Quat						GetRotation() const										{ return mRotation; }
+	Quat							GetRotation() const										{ return mRotation; }
 
 	/// Access the translation that has been applied to the inner shape
-	const Vec3						GetPosition() const										{ return mCenterOfMass - mRotation.InverseRotate(mInnerShape->GetCenterOfMass()); }
+	Vec3							GetPosition() const										{ return mCenterOfMass - mRotation.InverseRotate(mInnerShape->GetCenterOfMass()); }
 
 	// See Shape::GetCenterOfMass
 	virtual Vec3					GetCenterOfMass() const override						{ return mCenterOfMass; }
@@ -142,4 +142,4 @@ private:
 	Quat							mRotation;												///< Rotation of the child shape
 };
 
-} // JPH
+JPH_NAMESPACE_END

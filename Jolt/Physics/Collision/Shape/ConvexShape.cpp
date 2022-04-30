@@ -1,28 +1,28 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/Shape/ConvexShape.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollidePointResult.h>
-#include <Physics/Collision/Shape/ScaleHelpers.h>
-#include <Physics/Collision/Shape/GetTrianglesContext.h>
-#include <Physics/Collision/Shape/PolyhedronSubmergedVolumeCalculator.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <Physics/Collision/NarrowPhaseStats.h>
-#include <Physics/PhysicsSettings.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <Geometry/EPAPenetrationDepth.h>
-#include <Geometry/OrientedBox.h>
-#include <ObjectStream/TypeDeclarations.h>
+#include <Jolt/Physics/Collision/Shape/ConvexShape.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
+#include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
+#include <Jolt/Physics/Collision/Shape/GetTrianglesContext.h>
+#include <Jolt/Physics/Collision/Shape/PolyhedronSubmergedVolumeCalculator.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Physics/Collision/NarrowPhaseStats.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/Geometry/EPAPenetrationDepth.h>
+#include <Jolt/Geometry/OrientedBox.h>
+#include <Jolt/ObjectStream/TypeDeclarations.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_ABSTRACT(ConvexShapeSettings)
 {
@@ -272,43 +272,40 @@ void ConvexShape::sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeC
 	EPAPenetrationDepth epa;
 	float fraction = ioCollector.GetEarlyOutFraction();
 	Vec3 contact_point_a, contact_point_b, contact_normal;
-	if (epa.CastShape(inShapeCast.mCenterOfMassStart, inShapeCast.mDirection, inShapeCastSettings.mCollisionTolerance, inShapeCastSettings.mPenetrationTolerance, *cast_support, *target_support, cast_support->GetConvexRadius(), target_support->GetConvexRadius(), inShapeCastSettings.mReturnDeepestPoint, fraction, contact_point_a, contact_point_b, contact_normal))
+	if (epa.CastShape(inShapeCast.mCenterOfMassStart, inShapeCast.mDirection, inShapeCastSettings.mCollisionTolerance, inShapeCastSettings.mPenetrationTolerance, *cast_support, *target_support, cast_support->GetConvexRadius(), target_support->GetConvexRadius(), inShapeCastSettings.mReturnDeepestPoint, fraction, contact_point_a, contact_point_b, contact_normal)
+		&& (inShapeCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces 
+			|| contact_normal.Dot(inShapeCast.mDirection) > 0.0f)) // Test if backfacing
 	{
-		// Test if backfacing
-		if (inShapeCastSettings.mBackFaceModeConvex == EBackFaceMode::CollideWithBackFaces 
-			|| contact_normal.Dot(inShapeCast.mDirection) > 0.0f)
+		// Convert to world space
+		contact_point_a = inCenterOfMassTransform2 * contact_point_a;
+		contact_point_b = inCenterOfMassTransform2 * contact_point_b;
+		Vec3 contact_normal_world = inCenterOfMassTransform2.Multiply3x3(contact_normal);
+
+		ShapeCastResult result(fraction, contact_point_a, contact_point_b, contact_normal_world, false, inSubShapeIDCreator1.GetID(), inSubShapeIDCreator2.GetID(), TransformedShape::sGetBodyID(ioCollector.GetContext()));
+
+		// Gather faces
+		if (inShapeCastSettings.mCollectFacesMode == ECollectFacesMode::CollectFaces)
 		{
+			// Get supporting face of shape 1
+			Mat44 transform_1_to_2 = inShapeCast.mCenterOfMassStart;
+			transform_1_to_2.SetTranslation(transform_1_to_2.GetTranslation() + fraction * inShapeCast.mDirection);
+			cast_shape->GetSupportingFace(transform_1_to_2.Multiply3x3Transposed(-contact_normal), inShapeCast.mScale, result.mShape1Face);
+
 			// Convert to world space
-			contact_point_a = inCenterOfMassTransform2 * contact_point_a;
-			contact_point_b = inCenterOfMassTransform2 * contact_point_b;
-			Vec3 contact_normal_world = inCenterOfMassTransform2.Multiply3x3(contact_normal);
+			Mat44 transform_1_to_world = inCenterOfMassTransform2 * transform_1_to_2;
+			for (Vec3 &p : result.mShape1Face)
+				p = transform_1_to_world * p;
 
-			ShapeCastResult result(fraction, contact_point_a, contact_point_b, contact_normal_world, false, inSubShapeIDCreator1.GetID(), inSubShapeIDCreator2.GetID(), TransformedShape::sGetBodyID(ioCollector.GetContext()));
+			// Get supporting face of shape 2
+			shape->GetSupportingFace(contact_normal, inScale, result.mShape2Face);
 
-			// Gather faces
-			if (inShapeCastSettings.mCollectFacesMode == ECollectFacesMode::CollectFaces)
-			{
-				// Get supporting face of shape 1
-				Mat44 transform_1_to_2 = inShapeCast.mCenterOfMassStart;
-				transform_1_to_2.SetTranslation(transform_1_to_2.GetTranslation() + fraction * inShapeCast.mDirection);
-				cast_shape->GetSupportingFace(transform_1_to_2.Multiply3x3Transposed(-contact_normal), inShapeCast.mScale, result.mShape1Face);
-
-				// Convert to world space
-				Mat44 transform_1_to_world = inCenterOfMassTransform2 * transform_1_to_2;
-				for (Vec3 &p : result.mShape1Face)
-					p = transform_1_to_world * p;
-
-				// Get supporting face of shape 2
-				shape->GetSupportingFace(contact_normal, inScale, result.mShape2Face);
-
-				// Convert to world space
-				for (Vec3 &p : result.mShape2Face)
-					p = inCenterOfMassTransform2 * p;
-			}
-
-			JPH_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseCollector track;)
-			ioCollector.AddHit(result);
+			// Convert to world space
+			for (Vec3 &p : result.mShape2Face)
+				p = inCenterOfMassTransform2 * p;
 		}
+
+		JPH_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseCollector track;)
+		ioCollector.AddHit(result);
 	}
 }
 
@@ -572,4 +569,4 @@ void ConvexShape::sRegister()
 		}
 }
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,18 +3,18 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Core/FPException.h>
-#include <Geometry/ClosestPoint.h>
-#include <Geometry/ConvexSupport.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Core/FPException.h>
+#include <Jolt/Geometry/ClosestPoint.h>
+#include <Jolt/Geometry/ConvexSupport.h>
 
 //#define JPH_GJK_DEBUG
 #ifdef JPH_GJK_DEBUG
-	#include <Core/StringTools.h>
-	#include <Renderer/DebugRenderer.h>
+	#include <Jolt/Core/StringTools.h>
+	#include <Jolt/Renderer/DebugRenderer.h>
 #endif
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Convex vs convex collision detection
 /// Based on: A Fast and Robust GJK Implementation for Collision Detection of Convex Objects - Gino van den Bergen
@@ -154,7 +154,7 @@ private:
 	}
 
 	// Calculate closest points on A and B
-	void		CalculatePointAAndB(Vec3 &outPointA, Vec3 &outPointB)
+	void		CalculatePointAAndB(Vec3 &outPointA, Vec3 &outPointB) const
 	{
 		switch (mNumPoints)		
 		{
@@ -489,7 +489,7 @@ public:
 
 	/// Get the resulting simplex after the GetClosestPoints algorithm finishes.
 	/// If it returned a squared distance of 0, the origin will be contained in the simplex.
-	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint &outNumPoints)
+	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint &outNumPoints) const
 	{
 		uint size = sizeof(Vec3) * mNumPoints;
 		memcpy(outY, mY, size);
@@ -963,4 +963,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

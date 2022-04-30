@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class SkeletonPose;
 
@@ -26,7 +26,7 @@ public:
 		void							FromMatrix(Mat44Arg inMatrix);
 		
 		/// Convert to matrix representation
-		void							ToMatrix(Mat44 &outMatrix);
+		inline Mat44					ToMatrix() const									{ return Mat44::sRotationTranslation(mRotation, mTranslation); }
 
 		Quat							mRotation = Quat::sIdentity();						///< Local space rotation of the joint
 		Vec3							mTranslation = Vec3::sZero();						///< Local space translation of the joint
@@ -73,4 +73,4 @@ private:
 	bool								mIsLooping = true;									///< If this animation loops back to start
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/StaticArray.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/StaticArray.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // RTTI
@@ -164,7 +164,7 @@ public:
 	const void *				CastTo(const void *inObject, const RTTI *inRTTI) const;
 
 	/// Attribute access
-	void						AddAttribute(RTTIAttribute *inAttribute);
+	void						AddAttribute(const RTTIAttribute *inAttribute);
 	int							GetAttributeCount() const;
 	const RTTIAttribute *		GetAttribute(int inIdx) const;
 	const RTTIAttribute *		GetAttribute(const RTTI *inRTTI, const char *inName) const;
@@ -464,4 +464,4 @@ private:
 	const char *				mName;
 };
 
-} // JPH
+JPH_NAMESPACE_END

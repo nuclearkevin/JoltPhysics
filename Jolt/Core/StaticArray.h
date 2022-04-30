@@ -3,7 +3,7 @@
 
 #pragma once
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Simple variable length array backed by a fixed size buffer
 template <class T, uint N>
@@ -15,9 +15,7 @@ public:
 	using size_type = uint;
 
 	/// Default constructor
-						StaticArray()
-	{
-	}
+						StaticArray() = default;
 
 	/// Constructor from initializer list
 	explicit			StaticArray(initializer_list<T> inList)
@@ -279,7 +277,10 @@ protected:
 	Storage				mElements[N];
 };
 
-} // JPH
+JPH_NAMESPACE_END
+
+JPH_SUPPRESS_WARNING_PUSH
+JPH_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 
 namespace std
 {
@@ -302,3 +303,5 @@ namespace std
 		}
 	};
 }
+
+JPH_SUPPRESS_WARNING_POP

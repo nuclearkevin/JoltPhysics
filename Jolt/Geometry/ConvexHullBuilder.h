@@ -7,13 +7,13 @@
 //#define JPH_CONVEX_BUILDER_DUMP_SHAPE
 
 #ifdef JPH_CONVEX_BUILDER_DEBUG
-	#include <Core/Color.h>
+	#include <Jolt/Core/Color.h>
 #endif
 
-#include <Core/StaticArray.h>
-#include <Core/NonCopyable.h>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// A convex hull builder that tries to create hulls as accurately as possible. Used for offline processing.
 class ConvexHullBuilder : public NonCopyable
@@ -108,7 +108,7 @@ public:
 	int					GetNumVerticesUsed() const;
 
 	/// Returns true if the hull contains a polygon with inIndices (counter clockwise indices in mPositions)
-	bool				ContainsFace(const vector<int> &inIndices);
+	bool				ContainsFace(const vector<int> &inIndices) const;
 
 	/// Calculate the center of mass and the volume of the current convex hull
 	void				GetCenterOfMassAndVolume(Vec3 &outCenterOfMass, float &outVolume) const;
@@ -168,14 +168,14 @@ private:
 	void				FreeFaces();
 
 	/// Link face edge to other face edge
-	void				LinkFace(Edge *inEdge1, Edge *inEdge2);
+	static void			sLinkFace(Edge *inEdge1, Edge *inEdge2);
 
 	/// Unlink this face from all of its neighbours
-	void				UnlinkFace(Face *inFace);
+	static void			sUnlinkFace(Face *inFace);
 
 	/// Given one face that faces inVertex, find the edges of the faces that are not facing inVertex.
 	/// Will flag all those faces for removal.
-	void				FindEdge(Face *inFacingFace, Vec3Arg inVertex, FullEdges &outEdges);
+	void				FindEdge(Face *inFacingFace, Vec3Arg inVertex, FullEdges &outEdges) const;
 
 	/// Merges the two faces that share inEdge into the face inEdge->mFace
 	void				MergeFaces(Edge *inEdge);
@@ -199,7 +199,7 @@ private:
 	/// Removes inFace if it consists of only 2 edges, linking its neighbouring faces together
 	/// Any faces that need to be checked for validity will be added to ioAffectedFaces.
 	/// @return True if face was removed.
-	bool				RemoveTwoEdgeFace(Face *inFace, Faces &ioAffectedFaces);
+	bool				RemoveTwoEdgeFace(Face *inFace, Faces &ioAffectedFaces) const;
 
 #ifdef JPH_ENABLE_ASSERTS
 	/// Dumps the text representation of a face to the TTY
@@ -240,4 +240,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

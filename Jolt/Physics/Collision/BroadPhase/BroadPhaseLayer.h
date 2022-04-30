@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Physics/Collision/ObjectLayer.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// An object layer can be mapped to a broadphase layer. Objects with the same broadphase layer will end up in the same sub structure (usually a tree) of the broadphase. 
 /// When there are many layers, this reduces the total amount of sub structures the broad phase needs to manage. Usually you want objects that don't collide with each other 
@@ -20,13 +20,8 @@ public:
 
 	JPH_INLINE 						BroadPhaseLayer() = default;
 	JPH_INLINE explicit constexpr	BroadPhaseLayer(Type inValue) : mValue(inValue) { }
-	JPH_INLINE constexpr			BroadPhaseLayer(const BroadPhaseLayer &inRHS) : mValue(inRHS.mValue) { }
-
-	JPH_INLINE BroadPhaseLayer &	operator = (const BroadPhaseLayer &inRHS)
-	{
-		mValue = inRHS.mValue;
-		return *this;
-	}
+	JPH_INLINE constexpr			BroadPhaseLayer(const BroadPhaseLayer &) = default;
+	JPH_INLINE BroadPhaseLayer &	operator = (const BroadPhaseLayer &) = default;
 
 	JPH_INLINE constexpr bool		operator == (const BroadPhaseLayer &inRHS) const
 	{
@@ -102,13 +97,6 @@ public:
 	{
 	}
 
-	/// Copy constructor
-									DefaultBroadPhaseLayerFilter(const DefaultBroadPhaseLayerFilter &inRHS) :
-		mObjectVsBroadPhaseLayerFilter(inRHS.mObjectVsBroadPhaseLayerFilter),
-		mLayer(inRHS.mLayer)
-	{
-	}
-
 	// See BroadPhaseLayerFilter::ShouldCollide
 	virtual bool					ShouldCollide(BroadPhaseLayer inLayer) const override
 	{
@@ -140,4 +128,4 @@ private:
 	BroadPhaseLayer					mLayer;
 };
 
-} // JPH
+JPH_NAMESPACE_END

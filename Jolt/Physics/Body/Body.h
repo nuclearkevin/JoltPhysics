@@ -3,19 +3,19 @@
 
 #pragma once
 
-#include <Core/NonCopyable.h>
-#include <Geometry/AABox.h>
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/BroadPhase/BroadPhaseLayer.h>
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Collision/CollisionGroup.h>
-#include <Physics/Collision/TransformedShape.h>
-#include <Physics/Body/MotionProperties.h>
-#include <Physics/Body/BodyID.h>
-#include <Physics/Body/BodyAccess.h>
-#include <Core/StringTools.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/CollisionGroup.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/Body/MotionProperties.h>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Physics/Body/BodyAccess.h>
+#include <Jolt/Core/StringTools.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StateRecorder;
 class BodyCreationSettings;
@@ -37,14 +37,6 @@ public:
 	/// Destructor							
 							~Body()															{ JPH_ASSERT(mMotionProperties == nullptr); }
 
-#ifdef _DEBUG
-	/// Name of the body for debugging purposes
-	void					SetDebugName(const string &inName)								{ mDebugName = inName; }
-	string					GetDebugName() const;
-#else
-	string					GetDebugName() const											{ return ConvertToString(mID.GetIndex()); }
-#endif
-
 	/// Get the id of this body
 	inline const BodyID &	GetID() const													{ return mID; }
 
@@ -63,9 +55,12 @@ public:
 	/// Check if a body could be made kinematic or dynamic (if it was created dynamic or with mAllowDynamicOrKinematic set to true)
 	inline bool				CanBeKinematicOrDynamic() const									{ return mMotionProperties != nullptr; }
 
-	/// Change the body to a sensor or to a regular static body. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
-	/// Note that Sensors need to be of motion type Static (they can be moved around using BodyInterface::SetPosition/SetPositionAndRotation).
-	inline void				SetIsSensor(bool inIsSensor)									{ JPH_ASSERT(!inIsSensor || mMotionProperties == nullptr, "A sensor needs to be Static"); if (inIsSensor) mFlags.fetch_or(uint8(JPH::Body::EFlags::IsSensor), JPH::memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(JPH::Body::EFlags::IsSensor)), JPH::memory_order_relaxed); }
+	/// Change the body to a sensor. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
+	/// The cheapest sensor (in terms of CPU usage) is a sensor with motion type Static (they can be moved around using BodyInterface::SetPosition/SetPositionAndRotation).
+	/// These sensors will only detect collisions with active Dynamic or Kinematic bodies. As soon as a body go to sleep, the contact point with the sensor will be lost.
+	/// If you make a sensor Dynamic or Kinematic and activate them, the sensor will be able to detect collisions with sleeping bodies too. An active sensor will never go to sleep automatically.
+	/// When you make a Dynamic or Kinematic sensor, make sure it is in an ObjectLayer that does not collide with Static bodies or other sensors to avoid extra overhead in the broad phase.
+	inline void				SetIsSensor(bool inIsSensor)									{ if (inIsSensor) mFlags.fetch_or(uint8(JPH::Body::EFlags::IsSensor), JPH::memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(JPH::Body::EFlags::IsSensor)), JPH::memory_order_relaxed); }
 
 	/// Check if this body is a sensor.
 	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsSensor)) != 0; }
@@ -269,7 +264,7 @@ public:
 
 	///@}
 
-	static const uint32		cInactiveIndex = uint32(-1);									///< Constant indicating that body is not active
+	static constexpr uint32	cInactiveIndex = uint32(-1);									///< Constant indicating that body is not active
 
 private:
 	friend class BodyManager;
@@ -311,17 +306,11 @@ private:
 	atomic<uint8>			mFlags = 0;														///< See EFlags for possible flags
 	
 	// 121 bytes up to here
-
-#ifdef _DEBUG
-	string					mDebugName;														///< Name for debugging purposes
-#endif
 };
 
-#ifndef _DEBUG
-	static_assert(sizeof(Body) == 128, "Body should be 128 bytes");
-	static_assert(alignof(Body) == 16, "Body should align to 16 bytes");
-#endif
+static_assert(sizeof(Body) == 128, "Body should be 128 bytes");
+static_assert(alignof(Body) == 16, "Body should align to 16 bytes");
 
-} // JPH
+JPH_NAMESPACE_END
 
 #include "Body.inl"

@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStreamIn.h>
-#include <ObjectStream/ObjectStreamOut.h>
+#include <Jolt/ObjectStream/ObjectStreamIn.h>
+#include <Jolt/ObjectStream/ObjectStreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 using CompoundVisitor = function<void(const void *, const RTTI *)>;
 
@@ -16,7 +16,7 @@ class SerializableAttribute : public RTTIAttribute
 {
 public:
 	/// Constructor
-	explicit					SerializableAttribute(const char *inName)							: RTTIAttribute(inName) { }
+	using RTTIAttribute::RTTIAttribute;
 
 	///@name Serialization operations
 	virtual bool				IsType(int inArrayDepth, ObjectStream::EDataType inDataType, const char *inClassName) const = 0;
@@ -26,4 +26,4 @@ public:
 	virtual void				VisitCompounds(const void *inObject, const CompoundVisitor &inVisitor) const = 0;
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,14 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Physics/Collision/GroupFilter.h>
-#include <Core/StreamIn.h>
-#include <Core/StreamOut.h>
-#include <Core/Factory.h>
+#include <Jolt/Physics/Collision/GroupFilter.h>
+#include <Jolt/Core/StreamIn.h>
+#include <Jolt/Core/StreamOut.h>
+#include <Jolt/Core/Factory.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JPH_IMPLEMENT_SERIALIZABLE_ABSTRACT_BASE(GroupFilter)
 {
@@ -22,6 +22,7 @@ void GroupFilter::SaveBinaryState(StreamOut &inStream) const
 
 void GroupFilter::RestoreBinaryState(StreamIn &inStream)
 {
+	// RTTI hash is read in sRestoreFromBinaryState
 }
 
 GroupFilter::GroupFilterResult GroupFilter::sRestoreFromBinaryState(StreamIn &inStream)
@@ -58,4 +59,4 @@ GroupFilter::GroupFilterResult GroupFilter::sRestoreFromBinaryState(StreamIn &in
 	return result;
 }
 
-} // JPH
+JPH_NAMESPACE_END

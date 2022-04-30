@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/DecoratedShape.h>
+#include <Jolt/Physics/Collision/Shape/DecoratedShape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class CollideShapeSettings;
 
@@ -39,7 +39,7 @@ public:
 									OffsetCenterOfMassShape(const OffsetCenterOfMassShapeSettings &inSettings, ShapeResult &outResult);
 
 	/// Access the offset that is applied to the center of mass
-	const Vec3						GetOffset() const										{ return mOffset; }
+	Vec3							GetOffset() const										{ return mOffset; }
 
 	// See Shape::GetCenterOfMass
 	virtual Vec3					GetCenterOfMass() const override						{ return mInnerShape->GetCenterOfMass() + mOffset; }
@@ -124,4 +124,4 @@ private:
 	Vec3							mOffset;												///< Offset of the center of mass
 };
 
-} // JPH
+JPH_NAMESPACE_END

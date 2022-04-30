@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/Result.h>
-#include <ObjectStream/SerializableObject.h>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Result.h>
+#include <Jolt/ObjectStream/SerializableObject.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class StreamIn;
 class StreamOut;
@@ -45,7 +45,7 @@ public:
 	///@}
 
 	/// Find joint by name
-	int						GetJointIndex(const string &inName) const;
+	int						GetJointIndex(const string_view &inName) const;
 
 	/// Fill in parent joint indices based on name
 	void					CalculateParentJointIndices();
@@ -61,4 +61,4 @@ private:
 	JointVector				mJoints;
 };
 
-} // JPH
+JPH_NAMESPACE_END

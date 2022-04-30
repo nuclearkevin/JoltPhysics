@@ -3,14 +3,17 @@
 
 #pragma once
 
-#include <Core/Reference.h>
-#include <Core/Color.h>
-#include <Core/Profiler.h>
-#include <Core/NonCopyable.h>
-#include <Core/StaticArray.h>
-#include <atomic>
+#include <Jolt/Core/Reference.h>
+#include <Jolt/Core/Color.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/NonCopyable.h>
+#include <Jolt/Core/StaticArray.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 /// A class that allows units of work (Jobs) to be scheduled across multiple threads.
 /// It allows dependencies between the jobs so that the jobs form a graph.
@@ -51,7 +54,7 @@ public:
 	public:
 		/// Constructor 
 		inline				JobHandle() = default;
-		inline				JobHandle(const JobHandle &inHandle)		: Ref<Job>(inHandle) { }
+		inline				JobHandle(const JobHandle &inHandle) = default;
 		inline				JobHandle(JobHandle &&inHandle) noexcept	: Ref<Job>(move(inHandle)) { }
 
 		/// Constructor, only to be used by JobSystem
@@ -146,7 +149,6 @@ protected:
 		#endif // defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
 			mJobSystem(inJobSystem), 
 			mJobFunction(inJobFunction), 
-			mReferenceCount(0), 
 			mNumDependencies(inNumDependencies) 
 		{ 
 		}
@@ -234,7 +236,7 @@ private:
 		JobSystem *			mJobSystem;									///< The job system we belong to
 		atomic<intptr_t>	mBarrier = 0;								///< Barrier that this job is associated with (is a Barrier pointer)
 		JobFunction			mJobFunction;								///< Main job function
-		atomic<uint32>		mReferenceCount;							///< Amount of JobHandles pointing to this job
+		atomic<uint32>		mReferenceCount = 0;						///< Amount of JobHandles pointing to this job
 		atomic<uint32>		mNumDependencies;							///< Amount of jobs that need to complete before this job can run
 	};
 
@@ -250,6 +252,6 @@ private:
 
 using JobHandle = JobSystem::JobHandle;
 
-} // JPH
+JPH_NAMESPACE_END
 
-#include <Core/JobSystem.inl>
+#include "JobSystem.inl"

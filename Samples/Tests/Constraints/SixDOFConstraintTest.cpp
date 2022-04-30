@@ -4,9 +4,9 @@
 #include <TestFramework.h>
 
 #include <Tests/Constraints/SixDOFConstraintTest.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/GroupFilterTable.h>
-#include <Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/GroupFilterTable.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Application/DebugUI.h>
 #include <Layers.h>
 
@@ -113,6 +113,9 @@ void SixDOFConstraintTest::CreateSettingsMenu(DebugUI *inUI, UIElement *inSubMen
 				inUI->CreateSlider(configuration_settings, "Limit Max", RadiansToDegrees(sLimitMax[i]), 0.0f, 180.0f, 1.0f, [=](float inValue) { sLimitMin[i] = -DegreesToRadians(inValue); sLimitMax[i] = DegreesToRadians(inValue); });
 			}
 		}
+
+		for (int i = 0; i < 6; ++i)
+			inUI->CreateSlider(configuration_settings, "Max Friction " + labels[i], sSettings->mMaxFriction[i], 0.0f, 500.0f, 1.0f, [=](float inValue) { sSettings->mMaxFriction[i] = inValue; });
 
 		inUI->CreateTextButton(configuration_settings, "Accept Changes", [=]() { RestartTest(); });
 

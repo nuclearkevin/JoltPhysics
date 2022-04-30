@@ -3,15 +3,15 @@
 
 #pragma once
 
-#include <Physics/Body/BodyInterface.h>
-#include <Physics/Collision/NarrowPhaseQuery.h>
-#include <Physics/Collision/ContactListener.h>
-#include <Physics/Constraints/ContactConstraintManager.h>
-#include <Physics/Constraints/ConstraintManager.h>
-#include <Physics/IslandBuilder.h>
-#include <Physics/PhysicsUpdateContext.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Collision/NarrowPhaseQuery.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
+#include <Jolt/Physics/Constraints/ContactConstraintManager.h>
+#include <Jolt/Physics/Constraints/ConstraintManager.h>
+#include <Jolt/Physics/IslandBuilder.h>
+#include <Jolt/Physics/PhysicsUpdateContext.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class JobSystem;
 class StateRecorder;
@@ -34,6 +34,7 @@ public:
 	/// @param inMaxBodyPairs Maximum amount of body pairs to process (anything else will fall through the world), this number should generally be much higher than the max amount of contact points as there will be lots of bodies close that are not actually touching
 	/// @param inMaxContactConstraints Maximum amount of contact constraints to process (anything else will fall through the world)
 	/// @param inBroadPhaseLayerInterface Information on the mapping of object layers to broad phase layers, note since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem
+	/// @param inObjectVsBroadPhaseLayerFilter Filter callback function that is used to determine if an object layer collides with a broad phase layer.
 	/// @param inObjectLayerPairFilter Filter callback function that is used to determine if two object layers collide.
 	void						Init(uint inMaxBodies, uint inNumBodyMutexes, uint inMaxBodyPairs, uint inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, ObjectVsBroadPhaseLayerFilter inObjectVsBroadPhaseLayerFilter, ObjectLayerPairFilter inObjectLayerPairFilter);
 	
@@ -58,7 +59,9 @@ public:
 	const PhysicsSettings &		GetPhysicsSettings() const									{ return mPhysicsSettings; }
 
 	/// Access to the body interface. This interface allows to to create / remove bodies and to change their properties.
+	const BodyInterface &		GetBodyInterface() const									{ return mBodyInterfaceLocking; }
 	BodyInterface &				GetBodyInterface() 											{ return mBodyInterfaceLocking; }
+	const BodyInterface &		GetBodyInterfaceNoLock() const								{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
 	BodyInterface & 			GetBodyInterfaceNoLock()									{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
 
 	/// Access to the broadphase interface that allows coarse collision queries
@@ -168,11 +171,11 @@ private:
 	void						JobStepListeners(PhysicsUpdateContext::Step *ioStep);
 	void						JobDetermineActiveConstraints(PhysicsUpdateContext::Step *ioStep) const;
 	void						JobApplyGravity(const PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);	
-	void						JobSetupVelocityConstraints(float inDeltaTime, PhysicsUpdateContext::Step *ioStep);
+	void						JobSetupVelocityConstraints(float inDeltaTime, PhysicsUpdateContext::Step *ioStep) const;
 	void						JobBuildIslandsFromConstraints(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);
 	void						JobFindCollisions(PhysicsUpdateContext::Step *ioStep, int inJobIndex);
 	void						JobFinalizeIslands(PhysicsUpdateContext *ioContext);
-	void						JobBodySetIslandIndex(PhysicsUpdateContext *ioContext);
+	void						JobBodySetIslandIndex();
 	void						JobSolveVelocityConstraints(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::SubStep *ioSubStep);
 	void						JobPreIntegrateVelocity(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::SubStep *ioSubStep) const;
 	void						JobIntegrateVelocity(const PhysicsUpdateContext *ioContext, PhysicsUpdateContext::SubStep *ioSubStep);
@@ -258,4 +261,4 @@ private:
 	PhysicsSettings				mPhysicsSettings;
 };
 
-} // JPH
+JPH_NAMESPACE_END

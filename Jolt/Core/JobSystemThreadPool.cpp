@@ -1,22 +1,25 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <Core/JobSystemThreadPool.h>
-#include <Core/Profiler.h>
-#include <Core/FPException.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Core/FPException.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <algorithm>
+JPH_SUPPRESS_WARNINGS_STD_END
 
 #ifdef JPH_PLATFORM_WINDOWS
-	#pragma warning (push, 0)
-	#pragma warning (disable : 5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
+	JPH_SUPPRESS_WARNING_PUSH
+	JPH_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
 	#define WIN32_LEAN_AND_MEAN
-	#include <windows.h>
-	#pragma warning (pop)
+	#include <Windows.h>
+	JPH_SUPPRESS_WARNING_POP
 #endif
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 JobSystemThreadPool::Semaphore::Semaphore()
 {
@@ -193,7 +196,7 @@ void JobSystemThreadPool::BarrierImpl::Wait()
 				// Loop through the jobs and execute the first executable job
 				for (uint index = mJobReadIndex; index < mJobWriteIndex; ++index)
 				{
-					atomic<Job *> &job = mJobs[index & (cMaxJobs - 1)];
+					const atomic<Job *> &job = mJobs[index & (cMaxJobs - 1)];
 					Job *job_ptr = job.load();
 					if (job_ptr != nullptr && job_ptr->CanBeExecuted())
 					{
@@ -225,14 +228,16 @@ void JobSystemThreadPool::BarrierImpl::Wait()
 	}
 }
 
-JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads)	
+void JobSystemThreadPool::Init(uint inMaxJobs, uint inMaxBarriers, int inNumThreads)
 {
-	// Init freelist of jobs
-	mJobs.Init(inMaxJobs, inMaxJobs);
+	JPH_ASSERT(mBarriers == nullptr); // Already initialized?
 
 	// Init freelist of barriers
 	mMaxBarriers = inMaxBarriers;
 	mBarriers = new BarrierImpl [inMaxBarriers];
+
+	// Init freelist of jobs
+	mJobs.Init(inMaxJobs, inMaxJobs);
 
 	// Init queue
 	for (atomic<Job *> &j : mQueue)
@@ -240,6 +245,11 @@ JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int
 
 	// Start the worker threads
 	StartThreads(inNumThreads);
+}
+
+JobSystemThreadPool::JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads)
+{
+	Init(inMaxJobs, inMaxBarriers, inNumThreads);
 }
 
 void JobSystemThreadPool::StartThreads(int inNumThreads)
@@ -266,10 +276,8 @@ void JobSystemThreadPool::StartThreads(int inNumThreads)
 	for (int i = 0; i < inNumThreads; ++i)
 	{
 		// Name the thread
-		stringstream namestream;
-		namestream << "Worker ";
-		namestream << (i + 1);
-		string name = namestream.str();
+		char name[64];
+		snprintf(name, sizeof(name), "Worker %d", int(i + 1));
 
 		// Create thread
 		mThreads.emplace_back([this, name, i] { ThreadMain(name, i); });
@@ -515,10 +523,10 @@ static void SetThreadName(const char *inName)
 
 #endif
 
-void JobSystemThreadPool::ThreadMain([[maybe_unused]] const string &inName, int inThreadIndex)
+void JobSystemThreadPool::ThreadMain([[maybe_unused]] const char *inName, int inThreadIndex)
 {
 #ifdef JPH_PLATFORM_WINDOWS
-	SetThreadName(inName.c_str());
+	SetThreadName(inName);
 #endif
 
 	// Enable floating point exceptions
@@ -560,4 +568,4 @@ void JobSystemThreadPool::ThreadMain([[maybe_unused]] const string &inName, int 
 	JPH_PROFILE_THREAD_END();
 }
 
-} // JPH
+JPH_NAMESPACE_END

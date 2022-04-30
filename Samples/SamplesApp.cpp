@@ -5,32 +5,33 @@
 
 #include <SamplesApp.h>
 #include <Application/EntryPoint.h>
-#include <Core/JobSystemThreadPool.h>
-#include <Core/TempAllocator.h>
-#include <Geometry/OrientedBox.h>
-#include <Physics/PhysicsSystem.h>
-#include <Physics/StateRecorderImpl.h>
-#include <Physics/Body/BodyCreationSettings.h>
-#include <Physics/Collision/RayCast.h>
-#include <Physics/Collision/ShapeCast.h>
-#include <Physics/Collision/CastResult.h>
-#include <Physics/Collision/CollidePointResult.h>
-#include <Physics/Collision/AABoxCast.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/Shape/HeightFieldShape.h>
-#include <Physics/Collision/Shape/MeshShape.h>
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <Physics/Collision/Shape/CapsuleShape.h>
-#include <Physics/Collision/Shape/TaperedCapsuleShape.h>
-#include <Physics/Collision/Shape/CylinderShape.h>
-#include <Physics/Collision/Shape/TriangleShape.h>
-#include <Physics/Collision/Shape/StaticCompoundShape.h>
-#include <Physics/Collision/Shape/MutableCompoundShape.h>
-#include <Physics/Collision/Shape/ScaledShape.h>
-#include <Physics/Collision/NarrowPhaseStats.h>
-#include <Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Geometry/OrientedBox.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/StateRecorderImpl.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
+#include <Jolt/Physics/Collision/AABoxCast.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/Shape/HeightFieldShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/TaperedCapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+#include <Jolt/Physics/Collision/Shape/TriangleShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <Jolt/Physics/Collision/Shape/MutableCompoundShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/NarrowPhaseStats.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
+#include <Jolt/Physics/Character/CharacterVirtual.h>
 #include <Utils/Log.h>
 #include <Renderer/DebugRendererImp.h>
 
@@ -223,10 +224,12 @@ static TestNameAndRTTI sRigTests[] =
 };
 
 JPH_DECLARE_RTTI_FOR_FACTORY(CharacterTest)
+JPH_DECLARE_RTTI_FOR_FACTORY(CharacterVirtualTest)
 
 static TestNameAndRTTI sCharacterTests[] =
 {
 	{ "Character",							JPH_RTTI(CharacterTest) },
+	{ "Character Virtual",					JPH_RTTI(CharacterVirtualTest) },
 };
 
 JPH_DECLARE_RTTI_FOR_FACTORY(WaterShapeTest)
@@ -364,7 +367,6 @@ SamplesApp::SamplesApp()
 #ifdef JPH_DEBUG_RENDERER
 	mDebugUI->CreateTextButton(main_menu, "Drawing Options", [this]() { 
 		UIElement *drawing_options = mDebugUI->CreateMenu();
-		mDebugUI->CreateCheckBox(drawing_options, "Draw Body Names", mBodyDrawSettings.mDrawNames, [this](UICheckBox::EState inState) { mBodyDrawSettings.mDrawNames = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->CreateCheckBox(drawing_options, "Draw Shapes (H)", mBodyDrawSettings.mDrawShape, [this](UICheckBox::EState inState) { mBodyDrawSettings.mDrawShape = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->CreateCheckBox(drawing_options, "Draw Shapes Wireframe (Alt+W)", mBodyDrawSettings.mDrawShapeWireframe, [this](UICheckBox::EState inState) { mBodyDrawSettings.mDrawShapeWireframe = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->CreateComboBox(drawing_options, "Draw Shape Color", { "Instance", "Shape Type", "Motion Type", "Sleep", "Island", "Material" }, (int)mBodyDrawSettings.mDrawShapeColor, [this](int inItem) { mBodyDrawSettings.mDrawShapeColor = (BodyManager::EShapeColor)inItem; });
@@ -393,6 +395,7 @@ SamplesApp::SamplesApp()
 		mDebugUI->CreateCheckBox(drawing_options, "Draw Mesh Shape Triangle Outlines", MeshShape::sDrawTriangleOutlines, [](UICheckBox::EState inState) { MeshShape::sDrawTriangleOutlines = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->CreateCheckBox(drawing_options, "Draw Height Field Shape Triangle Outlines", HeightFieldShape::sDrawTriangleOutlines, [](UICheckBox::EState inState) { HeightFieldShape::sDrawTriangleOutlines = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->CreateCheckBox(drawing_options, "Draw Submerged Volumes", Shape::sDrawSubmergedVolumes, [](UICheckBox::EState inState) { Shape::sDrawSubmergedVolumes = inState == UICheckBox::STATE_CHECKED; });
+		mDebugUI->CreateCheckBox(drawing_options, "Draw Character Virtual Constraints", CharacterVirtual::sDrawConstraints, [](UICheckBox::EState inState) { CharacterVirtual::sDrawConstraints = inState == UICheckBox::STATE_CHECKED; });
 		mDebugUI->ShowMenu(drawing_options);
 	});
 #endif // JPH_DEBUG_RENDERER
@@ -529,6 +532,7 @@ void SamplesApp::StartTest(const RTTI *inRTTI)
 	mTest->SetPhysicsSystem(mPhysicsSystem);
 	mTest->SetJobSystem(mJobSystem);
 	mTest->SetDebugRenderer(mDebugRenderer);
+	mTest->SetTempAllocator(mTempAllocator);
 	if (mInstallContactListener)
 	{
 		mContactListener = new ContactListenerImpl;
@@ -1109,8 +1113,7 @@ bool SamplesApp::CastProbe(float inProbeLength, float &outFraction, Vec3 &outPos
 			// Create shape cast
 			RefConst<Shape> shape = CreateProbeShape();
 			Mat44 rotation = Mat44::sRotation(Vec3::sAxisX(), 0.1f * JPH_PI) * Mat44::sRotation(Vec3::sAxisY(), 0.2f * JPH_PI);
-			Mat44 com = Mat44::sTranslation(shape->GetCenterOfMass());
-			ShapeCast shape_cast(shape, Vec3::sReplicate(1.0f), Mat44::sTranslation(start) * rotation * com, direction);
+			ShapeCast shape_cast = ShapeCast::sFromWorldTransform(shape, Vec3::sReplicate(1.0f), Mat44::sTranslation(start) * rotation, direction);
 
 			// Settings
 			ShapeCastSettings settings;
@@ -1175,7 +1178,7 @@ bool SamplesApp::CastProbe(float inProbeLength, float &outFraction, Vec3 &outPos
 						// Draw shape
 						Color color = hit_body.IsDynamic()? Color::sYellow : Color::sOrange;
 					#ifdef JPH_DEBUG_RENDERER
-						shape_cast.mShape->Draw(mDebugRenderer, Mat44::sTranslation(position) * rotation * com, Vec3::sReplicate(1.0f), color, false, false);
+						shape_cast.mShape->Draw(mDebugRenderer, shape_cast.mCenterOfMassStart.PostTranslated(hit.mFraction * shape_cast.mDirection), Vec3::sReplicate(1.0f), color, false, false);
 					#endif // JPH_DEBUG_RENDERER
 
 						// Draw normal
@@ -1211,7 +1214,7 @@ bool SamplesApp::CastProbe(float inProbeLength, float &outFraction, Vec3 &outPos
 				// Draw 'miss'
 				mDebugRenderer->DrawLine(start, start + direction, Color::sRed);
 			#ifdef JPH_DEBUG_RENDERER
-				shape_cast.mShape->Draw(mDebugRenderer, Mat44::sTranslation(outPosition) * rotation * com, Vec3::sReplicate(1.0f), Color::sRed, false, false);
+				shape_cast.mShape->Draw(mDebugRenderer, shape_cast.mCenterOfMassStart.PostTranslated(shape_cast.mDirection), Vec3::sReplicate(1.0f), Color::sRed, false, false);
 			#endif // JPH_DEBUG_RENDERER
 			}
 		}
@@ -1574,9 +1577,6 @@ void SamplesApp::UpdateDebug()
 						// Note that we don't add it to the world since we don't want anything to collide with it, we just
 						// need an anchor for a constraint
 						Body *drag_anchor = bi.CreateBody(BodyCreationSettings(new SphereShape(0.01f), hit_position, Quat::sIdentity(), EMotionType::Static, Layers::NON_MOVING));
-					#ifdef _DEBUG
-						drag_anchor->SetDebugName("DragAnchor");
-					#endif
 						mDragAnchor = drag_anchor;
 
 						// Construct constraint that connects the drag anchor with the body that we want to drag

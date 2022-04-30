@@ -3,14 +3,17 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStream.h>
-#include <Core/RTTI.h>
+#include <Jolt/ObjectStream/ObjectStream.h>
+#include <Jolt/Core/RTTI.h>
+
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
 #include <queue>
 #include <fstream>
 #include <unordered_set>
 #include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// ObjectStreamOut contains all logic for writing an object to disk. It is the base 
 /// class for the text and binary output streams (ObjectStreamTextOut and ObjectStreamBinaryOut).
@@ -81,9 +84,9 @@ public:
 	virtual void				WritePrimitiveData(const Mat44 &inPrimitive) = 0;
 
 	///@name Layout hints (for text output)
-	virtual void				HintNextItem()												{ }
-	virtual void				HintIndentUp()												{ }
-	virtual void				HintIndentDown()											{ }
+	virtual void				HintNextItem()												{ /* Default is do nothing */ }
+	virtual void				HintIndentUp()												{ /* Default is do nothing */ }
+	virtual void				HintIndentDown()											{ /* Default is do nothing */ }
 
 protected:
 	/// Static constructor
@@ -109,7 +112,7 @@ private:
 	using ObjectQueue = queue<const void *>;
 	using ClassQueue = queue<const RTTI *>;
 
-	Identifier					mNextIdentifier;											///< Next free identifier for this stream
+	Identifier					mNextIdentifier = sNullIdentifier + 1;						///< Next free identifier for this stream
 	IdentifierMap				mIdentifierMap;												///< Links object pointer to an identifier
 	ObjectQueue					mObjectQueue;												///< Queue of objects to be written
 	ClassSet					mClassSet;													///< List of classes already written
@@ -118,15 +121,15 @@ private:
 
 // Define macro to declare functions for a specific primitive type
 #define JPH_DECLARE_PRIMITIVE(name)															\
-	void	OSWriteDataType(ObjectStreamOut &ioStream, name *inNull);						\
+	void	OSWriteDataType(ObjectStreamOut &ioStream, name *);								\
 	void	OSWriteData(ObjectStreamOut &ioStream, const name &inPrimitive);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <ObjectStream/ObjectStreamTypes.h>
+#include <Jolt/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates for dynamic arrays
 template <class T>
-void OSWriteDataType(ObjectStreamOut &ioStream, vector<T> *inNull)		
+void OSWriteDataType(ObjectStreamOut &ioStream, vector<T> *)		
 { 
 	ioStream.WriteDataType(ObjectStream::EDataType::Array); 
 	OSWriteDataType(ioStream, (T *)nullptr); 
@@ -148,7 +151,7 @@ void OSWriteData(ObjectStreamOut &ioStream, const vector<T> &inArray)
 
 /// Define serialization templates for static arrays
 template <class T, uint N>
-void OSWriteDataType(ObjectStreamOut &ioStream, StaticArray<T, N> *inNull)		
+void OSWriteDataType(ObjectStreamOut &ioStream, StaticArray<T, N> *)		
 { 
 	ioStream.WriteDataType(ObjectStream::EDataType::Array); 
 	OSWriteDataType(ioStream, (T *)nullptr); 
@@ -170,7 +173,7 @@ void OSWriteData(ObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 
 /// Define serialization templates for C style arrays
 template <class T, uint N>
-void OSWriteDataType(ObjectStreamOut &ioStream, T (*inNull)[N])		
+void OSWriteDataType(ObjectStreamOut &ioStream, T (*)[N])		
 { 
 	ioStream.WriteDataType(ObjectStream::EDataType::Array); 
 	OSWriteDataType(ioStream, (T *)nullptr); 
@@ -192,7 +195,7 @@ void OSWriteData(ObjectStreamOut &ioStream, const T (&inArray)[N])
 
 /// Define serialization templates for references
 template <class T>
-void OSWriteDataType(ObjectStreamOut &ioStream, Ref<T> *inNull)
+void OSWriteDataType(ObjectStreamOut &ioStream, Ref<T> *)
 {
 	OSWriteDataType(ioStream, (T *)nullptr);
 }
@@ -207,7 +210,7 @@ void OSWriteData(ObjectStreamOut &ioStream, const Ref<T> &inRef)
 }
 
 template <class T>
-void OSWriteDataType(ObjectStreamOut &ioStream, RefConst<T> *inNull)
+void OSWriteDataType(ObjectStreamOut &ioStream, RefConst<T> *)
 {
 	OSWriteDataType(ioStream, (T *)nullptr);
 }
@@ -221,4 +224,4 @@ void OSWriteData(ObjectStreamOut &ioStream, const RefConst<T> &inRef)
 		ioStream.WritePointerData(nullptr, nullptr);
 }
 
-} // JPH
+JPH_NAMESPACE_END

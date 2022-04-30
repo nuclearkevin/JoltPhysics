@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Core/StaticArray.h>
-#include <Core/Profiler.h>
-#include <Geometry/GJKClosestPoint.h>
-#include <Geometry/EPAConvexHullBuilder.h>
+#include <Jolt/Core/StaticArray.h>
+#include <Jolt/Core/Profiler.h>
+#include <Jolt/Geometry/GJKClosestPoint.h>
+#include <Jolt/Geometry/EPAConvexHullBuilder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of Expanding Polytope Algorithm as described in:
 ///
@@ -332,7 +332,7 @@ public:
 
 			// If the hull is starting to form defects then we're reaching numerical precision and we have to stop
 			bool has_defect = false;
-			for (Triangle *nt : new_triangles)
+			for (const Triangle *nt : new_triangles)
 				if (nt->IsFacingOrigin())
 				{
 					has_defect = true;
@@ -447,4 +447,4 @@ public:
 	}
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,13 +1,13 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
 #include <cstdarg>
-#include <Core/FPException.h>
-#include <RegisterTypes.h>
+#include <Jolt/Core/FPException.h>
+#include <Jolt/RegisterTypes.h>
 #ifdef JPH_PLATFORM_ANDROID
-#include <Core/Color.h>
+#include <Jolt/Core/Color.h>
 #include <android/log.h>
 #include <android_native_app_glue.h>
 #endif // JPH_PLATFORM_ANDROID
@@ -21,6 +21,9 @@ using namespace JPH;
 #include "doctest.h"
 
 using namespace doctest;
+
+// Disable common warnings triggered by Jolt
+JPH_SUPPRESS_WARNINGS
 
 // Callback for traces
 static void TraceImpl(const char *inFMT, ...)
@@ -49,11 +52,34 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 
 	// No breakpoint
 	return false;
-};
+}
 
 #endif // JPH_ENABLE_ASSERTS
 
-#ifndef JPH_PLATFORM_ANDROID
+#ifdef JPH_PLATFORM_WINDOWS_UWP
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+{
+	// Install callbacks
+	Trace = TraceImpl;
+	JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
+
+#ifdef _DEBUG
+	// Enable leak detection
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+	// Enable floating point exceptions
+	FPExceptionsEnable enable_exceptions;
+	JPH_UNUSED(enable_exceptions);
+
+	// Register physics types
+	RegisterTypes();
+
+	return Context().run(); 
+}
+
+#elif !defined(JPH_PLATFORM_ANDROID)
 
 // Generic entry point
 int main(int argc, char** argv)

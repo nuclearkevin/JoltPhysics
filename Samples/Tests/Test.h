@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/PhysicsSystem.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <Renderer/Renderer.h>
 #include <Input/Keyboard.h>
-#include <Skeleton/SkeletonPose.h>
-#include <Core/RTTI.h>
+#include <Jolt/Skeleton/SkeletonPose.h>
+#include <Jolt/Core/RTTI.h>
 
 class DebugUI;
 class UIElement;
@@ -34,6 +34,9 @@ public:
 
 	// Set the debug renderer
 	void			SetDebugRenderer(DebugRenderer *inDebugRenderer)			{ mDebugRenderer = inDebugRenderer; }
+
+	// Set the temp allocator
+	void			SetTempAllocator(TempAllocator *inTempAllocator)			{ mTempAllocator = inTempAllocator; }
 
 	// Initialize the test
 	virtual void	Initialize()												{ }
@@ -97,6 +100,7 @@ protected:
 	PhysicsSystem *	mPhysicsSystem = nullptr;
 	BodyInterface *	mBodyInterface = nullptr;
 	DebugRenderer *	mDebugRenderer = nullptr;
+	TempAllocator *	mTempAllocator = nullptr;
 
 private:
 	bool			mNeedsRestart = false;

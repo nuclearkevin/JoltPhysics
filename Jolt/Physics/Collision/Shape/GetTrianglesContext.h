@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 class PhysicsMaterial;
 
@@ -155,7 +155,7 @@ public:
 	}
 
 	/// Add a mesh part and its transform
-	void			AddPart(const Mat44 inLocalToWorld, const Vec3 *inTriangleVertices, size_t inNumTriangleVertices)
+	void			AddPart(Mat44Arg inLocalToWorld, const Vec3 *inTriangleVertices, size_t inNumTriangleVertices)
 	{
 		JPH_ASSERT(inNumTriangleVertices % 3 == 0);
 		
@@ -240,4 +240,4 @@ private:
 	bool					mIsInsideOut;
 };
 
-} // JPH
+JPH_NAMESPACE_END

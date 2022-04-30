@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/ObjectStreamTextIn.h>
+#include <Jolt/ObjectStream/ObjectStreamTextIn.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 ObjectStreamTextIn::ObjectStreamTextIn(istream &inStream) :
 	ObjectStreamIn(inStream)
@@ -17,7 +17,7 @@ bool ObjectStreamTextIn::ReadDataType(EDataType &outType)
 	string token;
 	if (ReadWord(token)) 
 	{
-		transform(token.begin(), token.end(), token.begin(), [](char inValue) -> char { return (char)tolower(inValue); });
+		transform(token.begin(), token.end(), token.begin(), [](char inValue) { return (char)tolower(inValue); });
 		if (token == "declare")
 			outType = EDataType::Declare;
 		else if (token == "object")
@@ -165,7 +165,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(bool &outPrimitive)
 	string token;
 	if (!ReadWord(token))
 		return false;
-	transform(token.begin(), token.end(), token.begin(), [](char inValue) -> char { return (char)tolower(inValue); });
+	transform(token.begin(), token.end(), token.begin(), [](char inValue) { return (char)tolower(inValue); });
 	outPrimitive = token == "true";
 	return outPrimitive || token == "false";
 }
@@ -342,4 +342,4 @@ bool ObjectStreamTextIn::ReadWord(string &outWord)
 	return !outWord.empty();
 }
 
-} // JPH
+JPH_NAMESPACE_END

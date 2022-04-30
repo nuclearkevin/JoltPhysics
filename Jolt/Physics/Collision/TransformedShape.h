@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <Physics/Collision/ObjectLayer.h>
-#include <Physics/Collision/ShapeFilter.h>
-#include <Physics/Collision/Shape/Shape.h>
-#include <Physics/Collision/Shape/SubShapeID.h>
-#include <Physics/Collision/BackFaceMode.h>
-#include <Physics/Body/BodyID.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/ShapeFilter.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/Shape/SubShapeID.h>
+#include <Jolt/Physics/Collision/BackFaceMode.h>
+#include <Jolt/Physics/Body/BodyID.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 struct RayCast;
 class CollideShapeSettings;
@@ -73,10 +73,10 @@ public:
 	inline void					SetShapeScale(Vec3Arg inScale)				{ inScale.StoreFloat3(&mShapeScale); }
 
 	/// Calculates the transform for this shapes's center of mass (excluding scale)
-	inline const Mat44			GetCenterOfMassTransform() const			{ return Mat44::sRotationTranslation(mShapeRotation, mShapePositionCOM); }
+	inline Mat44				GetCenterOfMassTransform() const			{ return Mat44::sRotationTranslation(mShapeRotation, mShapePositionCOM); }
 
 	/// Calculates the inverse of the transform for this shape's center of mass (excluding scale)
-	inline const Mat44			GetInverseCenterOfMassTransform() const		{ return Mat44::sInverseRotationTranslation(mShapeRotation, mShapePositionCOM); }
+	inline Mat44				GetInverseCenterOfMassTransform() const		{ return Mat44::sInverseRotationTranslation(mShapeRotation, mShapePositionCOM); }
 
 	/// Sets the world transform (including scale) of this transformed shape (not from the center of mass but in the space the shape was created)
 	inline void					SetWorldTransform(Vec3Arg inPosition, QuatArg inRotation, Vec3Arg inScale)
@@ -95,7 +95,7 @@ public:
 	}
 
 	/// Calculates the world transform including scale of this shape (not from the center of mass but in the space the shape was created)
-	inline const Mat44			GetWorldTransform() const					
+	inline Mat44				GetWorldTransform() const					
 	{	
 		Mat44 transform = Mat44::sRotation(mShapeRotation) * Mat44::sScale(GetShapeScale());
 		transform.SetTranslation(mShapePositionCOM - transform.Multiply3x3(mShape->GetCenterOfMass()));
@@ -116,7 +116,8 @@ public:
 		return sub_shape_id;
 	}
 
-	/// Get surface normal of a particular sub shape and its world space surface position on this body
+	/// Get surface normal of a particular sub shape and its world space surface position on this body.
+	/// Note: When you have a CollideShapeResult or ShapeCastResult you should use -mPenetrationAxis.Normalized() as contact normal as GetWorldSpaceSurfaceNormal will only return face normals (and not vertex or edge normals).
 	inline Vec3					GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inPosition) const
 	{
 		Mat44 inv_com = GetInverseCenterOfMassTransform();
@@ -159,4 +160,4 @@ public:
 static_assert(sizeof(TransformedShape) == 64, "Not properly packed");
 static_assert(alignof(TransformedShape) == 16, "Not properly aligned");
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,11 +3,14 @@
 
 #pragma once
 
-#include <Physics/Body/BodyID.h>
-#include <Core/NonCopyable.h>
-#include <atomic>
+#include <Jolt/Physics/Body/BodyID.h>
+#include <Jolt/Core/NonCopyable.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <atomic>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 class TempAllocator;
 
@@ -42,7 +45,7 @@ public:
 	void					Finalize(const BodyID *inActiveBodies, uint32 inNumActiveBodies, uint32 inNumContacts, TempAllocator *inTempAllocator);
 
 	/// Get the amount of islands formed
-	uint32					GetNumIslands()									{ return mNumIslands; }
+	uint32					GetNumIslands() const							{ return mNumIslands; }
 
 	/// Get iterator for a particular island, return false if there are no constraints
 	void					GetBodiesInIsland(uint32 inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const;
@@ -63,7 +66,7 @@ private:
 
 	// Helper functions to build various islands
 	void					BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumActiveBodies, TempAllocator *inTempAllocator);
-	void					BuildConstraintIslands(uint32 *inConstraintToBody, uint32 inNumConstraints, uint32 *&outConstraints, uint32 *&outConstraintsEnd, TempAllocator *inTempAllocator);
+	void					BuildConstraintIslands(const uint32 *inConstraintToBody, uint32 inNumConstraints, uint32 *&outConstraints, uint32 *&outConstraintsEnd, TempAllocator *inTempAllocator) const;
 
 	/// Sorts the islands so that the islands with most constraints go first
 	void					SortIslands(TempAllocator *inTempAllocator);
@@ -113,4 +116,4 @@ private:
 #endif
 };
 
-} // JPH
+JPH_NAMESPACE_END

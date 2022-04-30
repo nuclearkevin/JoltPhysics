@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/Body.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Constrains movement along 3 axis
 ///
@@ -39,7 +39,7 @@ namespace JPH {
 /// E = identity matrix.
 class PointConstraintPart
 {
-	JPH_INLINE bool				ApplyVelocityStep(Body &ioBody1, Body &ioBody2, Vec3Arg inLambda)
+	JPH_INLINE bool				ApplyVelocityStep(Body &ioBody1, Body &ioBody2, Vec3Arg inLambda) const
 	{
 		// Apply impulse if delta is not zero
 		if (inLambda != Vec3::sZero())
@@ -151,7 +151,7 @@ public:
 	/// @param ioBody1 The first body that this constraint is attached to
 	/// @param ioBody2 The second body that this constraint is attached to
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
-	inline bool					SolvePositionConstraint(Body &ioBody1, Body &ioBody2, float inBaumgarte)
+	inline bool					SolvePositionConstraint(Body &ioBody1, Body &ioBody2, float inBaumgarte) const
 	{
 		Vec3 separation = (ioBody2.GetCenterOfMassPosition() + mR2 - ioBody1.GetCenterOfMassPosition() - mR1);
 		if (separation != Vec3::sZero())
@@ -222,4 +222,4 @@ private:
 	Vec3						mTotalLambda { Vec3::sZero() };
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,10 +3,13 @@
 
 #pragma once
 
-#include <Core/RTTI.h>
-#include <unordered_map>
+#include <Jolt/Core/RTTI.h>
 
-namespace JPH {
+JPH_SUPPRESS_WARNINGS_STD_BEGIN
+#include <unordered_map>
+JPH_SUPPRESS_WARNINGS_STD_END
+
+JPH_NAMESPACE_BEGIN
 
 /// Factory, to create RTTI objects
 class Factory
@@ -25,13 +28,13 @@ public:
 	bool						Register(const RTTI *inRTTI);
 
 	/// Get all registered classes
-	vector<const RTTI *>		GetAllClasses();
+	vector<const RTTI *>		GetAllClasses() const;
 
 	/// Singleton factory instance
 	static Factory 				sInstance;
 
 private:
-	using ClassNameMap = unordered_map<string, const RTTI *>;
+	using ClassNameMap = unordered_map<string_view, const RTTI *>;
 
 	using ClassHashMap = unordered_map<uint32, const RTTI *>;
 
@@ -42,4 +45,4 @@ private:
 	ClassHashMap				mClassHashMap;
 };
 
-} // JPH
+JPH_NAMESPACE_END

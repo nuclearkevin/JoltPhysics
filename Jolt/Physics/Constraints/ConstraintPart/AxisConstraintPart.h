@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <Physics/PhysicsSettings.h>
-#include <Physics/Body/Body.h>
-#include <Physics/Constraints/ConstraintPart/SpringPart.h>
-#include <Physics/StateRecorder.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Body/Body.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/SpringPart.h>
+#include <Jolt/Physics/StateRecorder.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Constraint that constrains motion along 1 axis
 ///
@@ -324,7 +324,7 @@ public:
 	/// @param inWorldSpaceAxis Axis along which the constraint acts (normalized)
 	/// @param inC Value of the constraint equation (C)
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
-	inline bool					SolvePositionConstraint(Body &ioBody1, Body &ioBody2, Vec3Arg inWorldSpaceAxis, float inC, float inBaumgarte)
+	inline bool					SolvePositionConstraint(Body &ioBody1, Body &ioBody2, Vec3Arg inWorldSpaceAxis, float inC, float inBaumgarte) const
 	{
 		// Only apply position constraint when the constraint is hard, otherwise the velocity bias will fix the constraint
 		if (inC != 0.0f && !mSpringPart.IsActive())
@@ -401,4 +401,4 @@ private:
 	float						mTotalLambda = 0.0f;
 };
 
-} // JPH
+JPH_NAMESPACE_END

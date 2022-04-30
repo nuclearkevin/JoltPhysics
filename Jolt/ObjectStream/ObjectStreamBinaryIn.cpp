@@ -1,15 +1,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt.h>
+#include <Jolt/Jolt.h>
 
-#include <ObjectStream/ObjectStreamBinaryIn.h>
+#include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
-	ObjectStreamIn(inStream),
-	mNextStringID(0x80000000)
+	ObjectStreamIn(inStream)
 {
 }
 
@@ -140,7 +139,8 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(string &outPrimitive)
 	outPrimitive = data;
 
 	// Insert string in table
-	mStringTable.insert(StringTable::value_type(mNextStringID++, outPrimitive));
+	mStringTable.try_emplace(mNextStringID, outPrimitive);
+	mNextStringID++;
 	return true;
 }
 
@@ -189,4 +189,4 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(Mat44 &outPrimitive)
 	return true;
 }
 
-} // JPH
+JPH_NAMESPACE_END

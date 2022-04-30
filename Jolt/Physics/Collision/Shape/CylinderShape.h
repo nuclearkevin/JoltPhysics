@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Collision/Shape/ConvexShape.h>
-#include <Physics/PhysicsSettings.h>
+#include <Jolt/Physics/Collision/Shape/ConvexShape.h>
+#include <Jolt/Physics/PhysicsSettings.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Class that constructs a CylinderShape
 class CylinderShapeSettings final : public ConvexShapeSettings
@@ -71,6 +71,7 @@ public:
 #endif // JPH_DEBUG_RENDERER
 
 	// See Shape::CastRay
+	using ConvexShape::CastRay;
 	virtual bool			CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
 
 	// See: Shape::CollidePoint
@@ -113,4 +114,4 @@ private:
 	float					mConvexRadius = 0.0f;
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Math/Vec3.h>
-#include <Math/UVec4.h>
+#include <Jolt/Math/Vec3.h>
+#include <Jolt/Math/UVec4.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 // Constructor
 Vec4::Vec4(Vec3Arg inRHS) : 
@@ -710,4 +710,4 @@ float Vec4::ReduceMax() const
 	return v.GetX();
 }
 
-} // JPH
+JPH_NAMESPACE_END

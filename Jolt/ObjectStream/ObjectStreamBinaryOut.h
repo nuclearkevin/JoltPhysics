@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <ObjectStream/ObjectStreamOut.h>
+#include <Jolt/ObjectStream/ObjectStreamOut.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream binary output stream.
 class ObjectStreamBinaryOut : public ObjectStreamOut
@@ -38,7 +38,7 @@ private:
 	using StringTable = unordered_map<string, uint32>;
 
 	StringTable					mStringTable;
-	uint32						mNextStringID;
+	uint32						mNextStringID = 0x80000000;
 };
 
-} // JPH
+JPH_NAMESPACE_END

@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include <Physics/Constraints/TwoBodyConstraint.h>
-#include <Physics/Constraints/ConstraintPart/PointConstraintPart.h>
+#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
+#include <Jolt/Physics/Constraints/ConstraintPart/PointConstraintPart.h>
 
-namespace JPH {
+JPH_NAMESPACE_BEGIN
 
 /// Point constraint settings, used to create a point constraint
 class PointConstraintSettings final : public TwoBodyConstraintSettings
@@ -58,6 +58,9 @@ public:
 	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
 	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
 
+	///@name Get Lagrange multiplier from last physics update (relates to how much force/torque was applied to satisfy the constraint)
+	inline Vec3		 			GetTotalLambdaPosition() const								{ return mPointConstraintPart.GetTotalLambda(); }
+
 private:
 	// Internal helper function to calculate the values below
 	void						CalculateConstraintProperties();
@@ -70,4 +73,4 @@ private:
 	PointConstraintPart			mPointConstraintPart;
 };
 
-} // JPH
+JPH_NAMESPACE_END

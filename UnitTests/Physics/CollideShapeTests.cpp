@@ -3,16 +3,16 @@
 
 #include "UnitTestFramework.h"
 #include "PhysicsTestContext.h"
-#include <Physics/Collision/Shape/SphereShape.h>
-#include <Physics/Collision/Shape/ScaledShape.h>
-#include <Physics/Collision/Shape/BoxShape.h>
-#include <Physics/Collision/Shape/RotatedTranslatedShape.h>
-#include <Physics/Collision/Shape/CapsuleShape.h>
-#include <Physics/Collision/Shape/ConvexHullShape.h>
-#include <Physics/Collision/CollideShape.h>
-#include <Physics/Collision/CollisionCollectorImpl.h>
-#include <Physics/Collision/CollisionDispatch.h>
-#include <Geometry/EPAPenetrationDepth.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/CollisionDispatch.h>
+#include <Jolt/Geometry/EPAPenetrationDepth.h>
 #include "Layers.h"
 
 TEST_SUITE("CollideShapeTests")
@@ -203,10 +203,10 @@ TEST_SUITE("CollideShapeTests")
 			CHECK(collector.mHits.size() == 1);
 			const CollideShapeResult &result = collector.mHits.front();
 			CHECK(result.mBodyID2 == body2.GetID());
-			CHECK_APPROX_EQUAL(result.mContactPointOn1, Vec3(0, 10, 0), 1.0e-5f);
-			CHECK_APPROX_EQUAL(result.mContactPointOn2, Vec3(0, 11, 0), 1.0e-5f);
+			CHECK_APPROX_EQUAL(result.mContactPointOn1, Vec3(0, 10, 0), 1.0e-4f);
+			CHECK_APPROX_EQUAL(result.mContactPointOn2, Vec3(0, 11, 0), 1.0e-4f);
 			Vec3 pen_axis = result.mPenetrationAxis.Normalized();
-			CHECK_APPROX_EQUAL(pen_axis, Vec3(0, -1, 0), 1.0e-5f);
+			CHECK_APPROX_EQUAL(pen_axis, Vec3(0, -1, 0), 1.0e-4f);
 			CHECK_APPROX_EQUAL(result.mPenetrationDepth, 1.0f, 1.0e-5f);
 		}
 
@@ -220,10 +220,10 @@ TEST_SUITE("CollideShapeTests")
 			CHECK(collector.mHits.size() == 1);
 			const CollideShapeResult &result = collector.mHits.front();
 			CHECK(result.mBodyID2 == body2.GetID());
-			CHECK_APPROX_EQUAL(result.mContactPointOn1, Vec3(0, 10, 0), 1.0e-5f);
-			CHECK_APPROX_EQUAL(result.mContactPointOn2, Vec3(0, 11, 0), 1.0e-5f);
+			CHECK_APPROX_EQUAL(result.mContactPointOn1, Vec3(0, 10, 0), 1.0e-4f);
+			CHECK_APPROX_EQUAL(result.mContactPointOn2, Vec3(0, 11, 0), 1.0e-4f);
 			Vec3 pen_axis = result.mPenetrationAxis.Normalized();
-			CHECK_APPROX_EQUAL(pen_axis, Vec3(0, -1, 0), 1.0e-5f);
+			CHECK_APPROX_EQUAL(pen_axis, Vec3(0, -1, 0), 1.0e-4f);
 			CHECK_APPROX_EQUAL(result.mPenetrationDepth, 1.0f, 1.0e-5f);
 		}
 	}
