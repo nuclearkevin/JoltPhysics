@@ -6,7 +6,7 @@ file(GLOB_RECURSE SOURCE_FILES
 )
 
 set(INCLUDE_DIRS
-    Jolt
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_library(jolt ${SOURCE_FILES})
